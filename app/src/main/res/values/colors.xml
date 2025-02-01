@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="btn_add">#fcbb01</color>
+
+
+    <!-- Цвета для светлой темы-->
+    <color name="lite_fon">#f6f6f6</color>
+    <color name="lite_bottom_nav">#fefefe</color>
+    <color name="lite_card">#fefefe</color>
+    <color name="lite_card_active">#ebebeb</color>
+    <color name="lite_text_primary">#010101</color>
+    <color name="lite_text_secondary">#707070</color>
+    <color name="lite_btn">#eaddff</color>
+
+
+    <!-- Цвета для темной темы-->
+    <color name="night_fon">#000000</color>
+    <color name="night_bottom_nav">#0f0f0f</color>
+    <color name="night_card">#242424</color>
+    <color name="night_card_active">#353535</color>
+    <color name="night_text_primary">#dcdcdc</color>
+    <color name="night_text_secondary">#999999</color>
+    <color name="night_btn">#4f378b</color>
+
+
+
+</resources>

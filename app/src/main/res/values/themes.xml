@@ -1,0 +1,36 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.SecretNoteV02" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="colorPrimary">@color/lite_fon</item>
+        <item name="colorOnPrimary">@color/lite_text_primary</item>
+        <item name="colorPrimaryVariant">@color/lite_bottom_nav</item>
+
+        <item name="materialButtonStyle">@style/MyStyle.Lite.Button</item>
+        
+
+        <item name="colorSurface">@color/lite_card</item>
+        <item name="colorSurfaceVariant">@color/lite_card_active</item>
+
+
+
+
+
+        
+
+        <item name="android:textColor">@color/lite_text_primary</item>
+        <item name="android:windowBackground">@color/lite_fon</item>
+
+    </style>
+
+    <style name="MyStyle.Lite.Button" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">@color/lite_btn</item>
+
+    </style>
+
+
+
+    <style name="Theme.SecretNoteV02" parent="Base.Theme.SecretNoteV02" />
+</resources>

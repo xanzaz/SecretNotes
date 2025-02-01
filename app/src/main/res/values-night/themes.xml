@@ -1,0 +1,32 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.SecretNoteV02" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/night_fon</item>
+        <item name="colorOnPrimary">@color/night_text_primary</item>
+        <item name="colorPrimaryVariant">@color/night_bottom_nav</item>
+
+        <item name="materialButtonStyle">@style/MyStyle.Night.Button</item>
+
+
+
+
+
+        <item name="colorSurface">@color/night_card</item>
+        <item name="colorSurfaceVariant">@color/night_card_active</item>
+
+
+
+
+        <item name="android:textColor">@color/night_text_primary</item>
+        <item name="android:windowBackground">@color/night_fon</item>
+
+    </style>
+
+    <style name="MyStyle.Night.Button" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">@color/night_btn</item>
+
+    </style>
+
+</resources>

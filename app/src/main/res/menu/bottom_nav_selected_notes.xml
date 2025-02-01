@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/all_clear_selected_notes_menu"
+        android:title="Выбрать все"
+        android:icon="@drawable/all_notes"
+        />
+    <item
+        android:id="@+id/delete_selected_notes_menu"
+        android:title="Удалить"
+        android:icon="@drawable/delete"
+        />
+    <item
+        android:id="@+id/encrypt_selected_notes_menu"
+        android:title="Зашифровать"
+        android:icon="@drawable/secret_notes"
+        />
+</menu>
