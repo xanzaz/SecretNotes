@@ -20,7 +20,7 @@ import com.example.secretnotev02.scripts.AppData
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     lateinit var bottomNavView: BottomNavigationView
 
@@ -34,6 +34,12 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         loadFragment(NotesFragment())
+
+        ActivityCounter.onAppForegrounded =
+            {
+                if (bottomNavView.selectedItemId == R.id.nav_main_secret_notes)
+                    loadFragment(LoginFragment())
+            }
 
         //Кнопка переключения темы
         val radioButton = findViewById<FloatingActionButton>(R.id.floatingActionButton2)
@@ -117,22 +123,5 @@ class MainActivity : AppCompatActivity() {
             else -> return  true
         }
     }
-
-//    override fun onUserLeaveHint() {
-//        super.onUserLeaveHint()
-//        AppData.isLogin = false
-//        AppData.AES = null
-//    }
-
-//    override fun onResume() {
-//        super.onResume()
-//        when(bottomNavView.selectedItemId)
-//        {
-//            R.id.nav_main_secret_notes ->
-//            {
-//                bottomNavView.selectedItemId = R.id.nav_main_notes
-//            }
-//        }
-//    }
 
 }

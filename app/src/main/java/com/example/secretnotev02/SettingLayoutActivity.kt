@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.secretnotev02.databinding.ActivitySettingLayoutBinding
 import com.example.secretnotev02.fragments.SettingListFragment
 
-class SettingLayoutActivity : AppCompatActivity() {
+class SettingLayoutActivity : BaseActivity() {
     lateinit var bilding: ActivitySettingLayoutBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

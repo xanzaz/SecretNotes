@@ -17,7 +17,7 @@ import com.example.secretnotev02.scripts.AppData
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class AddSecretNoteActivity : AppCompatActivity() {
+class AddSecretNoteActivity : BaseActivity() {
 
     lateinit var binding: ActivityAddNoteBinding
 
