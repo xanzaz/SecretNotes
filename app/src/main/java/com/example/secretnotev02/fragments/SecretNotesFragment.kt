@@ -229,11 +229,7 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
 
     private fun exportNote()
     {
-        val isSuccess = exportSecretNotes(mainActivity,"Notes",selectedItems.toList())
-        if(isSuccess is Uri)
-            Toast.makeText(context,"Данные успешно сохранены и находятся в папке Documents.",Toast.LENGTH_SHORT).show()
-        else
-            Toast.makeText(context,"Произошла ошибка при сохранении данных.",Toast.LENGTH_SHORT).show()
+        exportSecretNotes(mainActivity,"Notes",selectedItems.map { it.toNote() }.toList())
     }
 
 

@@ -1,12 +1,21 @@
 package com.example.secretnotev02.scripts
 
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+
+
+import androidx.core.content.ContextCompat
+import com.example.secretnotev02.DB.Note
 import com.example.secretnotev02.DB.NoteTable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -22,8 +31,13 @@ data class NoteExport(
     val date: String
 )
 
-fun exportSecretNotes(context: Context, fileName: String, notes: List<NoteTable>): Uri?
+fun exportSecretNotes(context: Context, fileName: String, notes: List<Note>): Uri?
 {
+    if (notes.isEmpty())
+    {
+        Toast.makeText(context,"У вас нет секретных заметок.",Toast.LENGTH_SHORT).show()
+        return null
+    }
     val notesEport = notes.map { it.toNoteExport() }
     val strJson = Json.encodeToString(notesEport)
     val data = AppData.AES!!.encodingText(strJson)
@@ -49,11 +63,12 @@ fun exportSecretNotes(context: Context, fileName: String, notes: List<NoteTable>
                 outputStream.write(data)
             }
         }
-
+        Toast.makeText(context,"Данные успешно сохранены и находятся в папке Documents.",Toast.LENGTH_SHORT).show()
         uri
     }
     catch (e: Exception)
     {
+        Toast.makeText(context,"Произошла ошибка при сохранении данных.",Toast.LENGTH_SHORT).show()
         Log.e("exportSecretNotes", e.message.toString())
         null
     }

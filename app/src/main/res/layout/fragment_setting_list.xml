@@ -58,6 +58,88 @@
 
     </androidx.cardview.widget.CardView>
 
+    <!-- Экспортирование всех secretNotes-->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/CVExportSecretNote"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:orientation="horizontal"
+        app:cardElevation="0dp"
+        app:cardMaxElevation="0dp"
+        app:cardUseCompatPadding="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CVeditPass">
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="373dp"
+                android:layout_height="35dp"
+                android:gravity="center_vertical"
+                android:text="Экспортировать все секретные заметки"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:gravity="center_vertical"
+                android:text=">"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!--Карта импорта данных    -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/CVImportSecretNote"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:orientation="horizontal"
+        app:cardElevation="0dp"
+        app:cardMaxElevation="0dp"
+        app:cardUseCompatPadding="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CVExportSecretNote">
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="373dp"
+                android:layout_height="35dp"
+                android:gravity="center_vertical"
+                android:text="Импортировать заметки"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:gravity="center_vertical"
+                android:text=">"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_setting"
         android:layout_width="409dp"
@@ -83,5 +165,5 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@+id/spinner"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/CVeditPass" />
+        app:layout_constraintTop_toBottomOf="@+id/CVImportSecretNote" />
 </androidx.constraintlayout.widget.ConstraintLayout>

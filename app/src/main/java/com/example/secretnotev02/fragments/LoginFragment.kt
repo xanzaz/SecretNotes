@@ -1,6 +1,5 @@
 package com.example.secretnotev02.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,8 +11,9 @@ import com.example.secretnotes.scripts.AES.AES
 import com.example.secretnotes.scripts.Pref
 import com.example.secretnotes.scripts.sha256
 import com.example.secretnotes.scripts.sha512
+import com.example.secretnotev02.BaseActivity
 import com.example.secretnotev02.MainActivity
-import com.example.secretnotev02.R
+import com.example.secretnotev02.SettingLayoutActivity
 import com.example.secretnotev02.databinding.FragmentLoginBinding
 import com.example.secretnotev02.scripts.AppData
 
@@ -21,6 +21,7 @@ import com.example.secretnotev02.scripts.AppData
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
     private var callingFunction: String? = null
+    lateinit var activity: BaseActivity
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,7 +37,10 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mainActivity = requireActivity() as MainActivity
+        if (callingFunction == "SettingListFragment")
+            activity = requireActivity() as SettingLayoutActivity
+        else
+            activity = requireActivity() as MainActivity
 
         //Получение хэш пароля
         val prefHashPass = Pref(view.context).getValue("hashPass","")
@@ -58,12 +62,12 @@ class LoginFragment : Fragment() {
                         AppData.isLogin = true
 
                         //проверка от куда был вызван фрагмент
-                        if (callingFunction == null)
+                        if (activity is MainActivity)
                         {
                             //из главной страницы
-                            mainActivity.loadFragment(SecretNotesFragment())
+                            (activity as MainActivity).loadFragment(SecretNotesFragment())
                         }
-                        else if (callingFunction == "NotesFragment")
+                        else if (callingFunction == "NotesFragment" || callingFunction == "SettingListFragment")
                         {
                             //из фрагмента NotesFragment
                             //Возвращается обратно в фрагмет с кодом 200
