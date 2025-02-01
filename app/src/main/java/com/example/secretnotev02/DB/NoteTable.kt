@@ -1,5 +1,6 @@
 package com.example.secretnotev02.DB
 
+import com.example.secretnotev02.scripts.NoteExport
 import java.io.Serializable
 
 data class NoteTable (
@@ -13,5 +14,14 @@ data class NoteTable (
     fun toNote():Note
     {
         return Note(id,title,content,date)
+    }
+
+    fun toNoteExport() : NoteExport
+    {
+        return NoteExport(
+            title = title.trim(),
+            content = content.trim(),
+            date = date.trim()
+        )
     }
 }

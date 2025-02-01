@@ -1,8 +1,11 @@
 package com.example.secretnotev02.fragments
 
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,19 +13,30 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.secretnotev02.AddSecretNoteActivity
 import com.example.secretnotev02.DB.DbHelper
 import com.example.secretnotev02.DB.Note
 import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.MainActivity
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.core.content.PackageManagerCompat
 import com.example.secretnotev02.R
 import com.example.secretnotev02.adapters.NoteAdapter
 
 import com.example.secretnotev02.databinding.FragmentSecretNotesBinding
+import com.example.secretnotev02.scripts.exportSecretNotes
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 
 class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
+
+    private val REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 101
+
     lateinit var binding: FragmentSecretNotesBinding
     private lateinit var adapter : NoteAdapter
     private lateinit var addLauncher: ActivityResultLauncher<Intent>
@@ -193,6 +207,12 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
 
                         true
                     }
+                    //Импортировать
+                    R.id.import_selected_secret_notes_menu ->
+                    {
+                        checkAndRequestWritePermission()
+                        true
+                    }
 
                     else -> true
                 }
@@ -206,5 +226,53 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
             mainActivity.bottomNavView.selectedItemId = R.id.nav_main_secret_notes
         }
     }
+
+    private fun exportNote()
+    {
+        val isSuccess = exportSecretNotes(mainActivity,"Notes",selectedItems.toList())
+        if(isSuccess is Uri)
+            Toast.makeText(context,"Данные успешно сохранены и находятся в папке Documents.",Toast.LENGTH_SHORT).show()
+        else
+            Toast.makeText(context,"Произошла ошибка при сохранении данных.",Toast.LENGTH_SHORT).show()
+    }
+
+
+    private fun checkAndRequestWritePermission()
+    {
+        if(ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) != PackageManager.PERMISSION_GRANTED
+        )
+        {
+            requestPermissions(
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CODE_WRITE_EXTERNAL_STORAGE
+            )
+        }
+        else
+        {
+            exportNote()
+
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            REQUEST_CODE_WRITE_EXTERNAL_STORAGE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    exportNote()
+                } else {
+                    Toast.makeText(requireContext(), "Разрешение отклонено", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
 
 }
