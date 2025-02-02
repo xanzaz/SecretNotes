@@ -8,26 +8,33 @@ import com.example.secretnotev02.scripts.AppData
 object ActivityCounter {
     var activityCount = 0
     var wasInBackground = true
+    var isOpenSelectedFile = false
 
     fun activityStarted() {
-        if (activityCount == 0 && wasInBackground) {
-            // Приложение вернулось на передний план
+        if(!isOpenSelectedFile)
+        {
+            if (activityCount == 0 && wasInBackground) {
+                // Приложение вернулось на передний план
 
-            onAppForegrounded?.invoke()
+                onAppForegrounded?.invoke()
+            }
+            activityCount++
+            wasInBackground = false
         }
-        activityCount++
-        wasInBackground = false
     }
 
     fun activityStopped() {
-        activityCount--
-        if (activityCount == 0) {
-            // Все активности остановились
-            AppData.isLogin=false
-            AppData.AES = null
+        if(!isOpenSelectedFile) {
+            activityCount--
+            if (activityCount == 0) {
+                // Все активности остановились
+                Log.d("ActivityCounter", "activityStopped очищение данных")
+                AppData.isLogin = false
+                AppData.AES = null
 
-            wasInBackground = true
-            onAppBackgrounded?.invoke()
+                wasInBackground = true
+                onAppBackgrounded?.invoke()
+            }
         }
     }
 
@@ -49,3 +56,4 @@ abstract class BaseActivity:  AppCompatActivity()
     }
 
 }
+

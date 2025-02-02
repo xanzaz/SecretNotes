@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.commit
+import com.example.secretnotev02.ActivityCounter
 import com.example.secretnotev02.DB.DbHelper
 import com.example.secretnotev02.MainActivity
 import com.example.secretnotev02.R
@@ -36,6 +38,7 @@ class SettingListFragment : Fragment() {
     lateinit var binding: FragmentSettingListBinding
     private lateinit var settingActivity: SettingLayoutActivity
     private val REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 101
+    private lateinit var temp_fun:  ()->Unit
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -49,7 +52,8 @@ class SettingListFragment : Fragment() {
                 if(bundle.getString("kode")=="200")
                 //Если прошла авторизация
                 {
-                    checkAndRequestWritePermission()
+//                    checkAndRequestWritePermission()
+                    temp_fun()
                 }
 
             }
@@ -71,6 +75,8 @@ class SettingListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d("SettingListFragment", "keys = ${AppData.AES?.Keys?.map { it.map { it.toString() } }}}")
+        Log.d("SettingListFragment", "activityCount ${ActivityCounter.activityCount}")
         //Создание кнопки назад в toolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(view.findViewById(R.id.toolbar_setting))
         (requireActivity() as AppCompatActivity).supportActionBar?.apply {
@@ -96,6 +102,7 @@ class SettingListFragment : Fragment() {
                         "calling_function" to "SettingListFragment"
                     )
                 }
+                temp_fun = { checkAndRequestWritePermission() }
                 parentFragmentManager.commit {
                     replace(R.id.FrameSettingLayout,fragment)
                     addToBackStack(null)
@@ -106,6 +113,30 @@ class SettingListFragment : Fragment() {
                 // экспортируем все секретные заметки
                 checkAndRequestWritePermission()
             }
+        }
+        //нажатие на импортировать заметки
+        binding.CVImportSecretNote.setOnClickListener {
+            if(AppData.AES == null)
+            {
+                val fragment = LoginFragment().apply {
+                    arguments = bundleOf(
+                        "calling_function" to "SettingListFragment"
+                    )
+                }
+                temp_fun = { openImportFragment() }
+                parentFragmentManager.commit {
+                    replace(R.id.FrameSettingLayout,fragment)
+                    addToBackStack(null)
+                }
+            }
+            else{
+                openImportFragment()
+            }
+//            settingActivity.loadFragment(ImportSecretNotesFragment())
+//            parentFragmentManager.commit {
+//                replace(R.id.FrameSettingLayout,ImportSecretNotesFragment())
+//                addToBackStack(null)
+//            }
         }
 
     }
@@ -173,5 +204,10 @@ class SettingListFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun openImportFragment()
+    {
+        settingActivity.loadFragment(ImportSecretNotesFragment())
     }
 }
