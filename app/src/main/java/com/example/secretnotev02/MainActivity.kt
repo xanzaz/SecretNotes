@@ -4,9 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -135,8 +133,34 @@ class MainActivity : BaseActivity() {
         super.onResume()
         //Если было свернуто приложение на этом окне и было открыто секретыне заметки овзвращаем к регистрации
         if (isClose)
+        {
+            val itemMenuNotes = intArrayOf(R.id.all_clear_selected_notes_menu,R.id.delete_selected_notes_menu,R.id.encrypt_selected_notes_menu)
+            val itemMenuSecretNote = intArrayOf(R.id.all_clear_selected_secret_notes_menu,R.id.delete_selected_secret_notes_menu,R.id.import_selected_secret_notes_menu)
+            val selectedItemId: Int = bottomNavView.getSelectedItemId()
+            if (selectedItemId in itemMenuNotes)
+            {
+                Log.d("MainActivity","menu selected notes")
+                onChangeMenu(R.menu.bottom_navigation_main)
+                bottomNavView.setOnItemSelectedListener { item ->
+                    listenerMain(item.itemId)
+                }
+
+            }
+            else if ( selectedItemId in itemMenuSecretNote)
+            {
+                onChangeMenu(R.menu.bottom_navigation_main)
+                bottomNavView.selectedItemId = R.id.nav_main_secret_notes
+                bottomNavView.setOnItemSelectedListener { item ->
+                    listenerMain(item.itemId)
+                }
+            }
+
             if (bottomNavView.selectedItemId == R.id.nav_main_secret_notes)
                 loadFragment(LoginFragment())
+            isClose = false
+        }
+
+
         Log.d("MainActivity","onResume")
     }
 
