@@ -34,6 +34,12 @@ class AddSecretNoteActivity : BaseActivity() {
         }
 
         var isUpdate = false
+
+        //Устанавливаем время
+        val currentDateTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+        val formattedDateTime = currentDateTime.format(formatter)
+
         //Получение обьекта для изменения
         var inp_note = intent.getSerializableExtra("note") as Note?
         if (inp_note is Note)
@@ -50,10 +56,7 @@ class AddSecretNoteActivity : BaseActivity() {
         else
         {
 
-            //Устанавливаем время
-            val currentDateTime = LocalDateTime.now()
-            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
-            val formattedDateTime = currentDateTime.format(formatter)
+
             binding.TVDate.setText(formattedDateTime)
 
         }
@@ -87,8 +90,8 @@ class AddSecretNoteActivity : BaseActivity() {
                         inp_note!!.id,
                         AppData.AES!!.encodingText(title),
                         AppData.AES!!.encodingText(content),
-                        AppData.AES!!.encodingText(date))
-                    val note = Note(inp_note!!.id,title,content,date)
+                        AppData.AES!!.encodingText(formattedDateTime))
+                    val note = Note(inp_note!!.id,title,content,formattedDateTime)
                     db.updateSecretNotes(secretNote)
                     //Передача заметки обратно на фрагмент для изменения обьекта в списке
                     val intent = Intent().apply {

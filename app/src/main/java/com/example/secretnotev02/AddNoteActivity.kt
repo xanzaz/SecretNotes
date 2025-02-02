@@ -33,6 +33,11 @@ class AddNoteActivity : BaseActivity() {
 
         var isUpdate = false
 
+        //Устанавливаем время
+        val currentDateTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+        val formattedDateTime = currentDateTime.format(formatter)
+
         //получение обьекта для изменения
         var inp_note = intent.getSerializableExtra("note") as Note?
         if (inp_note is Note)
@@ -48,11 +53,6 @@ class AddNoteActivity : BaseActivity() {
         }
         else
         {
-
-            //Устанавливаем время
-            val currentDateTime = LocalDateTime.now()
-            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
-            val formattedDateTime = currentDateTime.format(formatter)
             binding.TVDate.setText(formattedDateTime)
 
         }
@@ -81,7 +81,7 @@ class AddNoteActivity : BaseActivity() {
                 val db = DbHelper(this,null)
                 if (isUpdate)
                 {
-                    val note = Note(inp_note!!.id,title,content,date)
+                    val note = Note(inp_note!!.id,title,content,formattedDateTime)
                     db.updateNotes(note)
                     val intent = Intent().apply {
                         putExtra("note",note)
