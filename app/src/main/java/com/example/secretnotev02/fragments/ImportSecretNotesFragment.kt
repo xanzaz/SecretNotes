@@ -47,9 +47,6 @@ class ImportSecretNotesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("ImportSecretNotesFragment", "keys = ${AppData.AES?.Keys?.map { it.map { it.toString() } }}}")
-        Log.d("ImportSecretNotesFragment", "AES = ${AppData.AES == null}")
-
         settingActivity = requireActivity() as SettingLayoutActivity
 
         binding.BtnBackImportSecretNotes.setOnClickListener {
@@ -76,9 +73,8 @@ class ImportSecretNotesFragment : Fragment() {
                     val pass = ETPassImportSecretNotes.text.toString().trim()
                     val aes = AES(sha256(pass))
                     val strJson = aes.decryptText(fileData as ByteArray)
-                    Log.d("ImportSecretNotesFragment", strJson)
+
                     val note_list = Json.decodeFromString<List<NoteExport>>(strJson)
-                    Log.d("ImportSecretNotesFragment", note_list.toString())
 
                     val db = DbHelper(view.context,null)
 
@@ -121,7 +117,6 @@ class ImportSecretNotesFragment : Fragment() {
 
 
     fun openFilePicker() {
-        Log.d("ImportSecretNotesFragment", "openFilePicker activityCount ${ActivityCounter.activityCount}")
         if (ActivityCounter.activityCount < 2)
             ActivityCounter.activityStarted()
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -147,7 +142,7 @@ class ImportSecretNotesFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("ImportSecretNotesFragment", "onActivityResult activityCount ${ActivityCounter.activityCount}")
+
 
 //        ActivityCounter.activityStopped()
 
@@ -167,7 +162,6 @@ class ImportSecretNotesFragment : Fragment() {
 
             }
         }
-        Log.d("ImportSecretNotesFragment", "onActivityResult off")
     }
     private fun readFileFromUri(uri: Uri): ByteArray? {
         return try {
@@ -178,19 +172,5 @@ class ImportSecretNotesFragment : Fragment() {
             e.printStackTrace()
             null
         }
-    }
-    private fun processImportedData(data: ByteArray)
-    {
-
-        Log.d("ImportSecretNotesFragment", "keys = ${AppData.AES?.Keys?.map { it.map { it.toString() } }}}")
-        Log.d("ImportSecretNotesFragment", "data = ${data.map { it.toString() } }}")
-        val strJson = AppData.AES!!.decryptText(data)
-        Log.d("ImportSecretNotesFragment", strJson)
-
-
-        Log.d("ImportSecretNotesFragment", "activityCount ${ActivityCounter.activityCount}")
-        Log.d("ImportSecretNotesFragment", "isopen ${ActivityCounter.isOpenSelectedFile}")
-
-
     }
 }

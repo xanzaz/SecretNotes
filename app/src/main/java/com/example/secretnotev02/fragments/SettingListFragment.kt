@@ -75,8 +75,7 @@ class SettingListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("SettingListFragment", "keys = ${AppData.AES?.Keys?.map { it.map { it.toString() } }}}")
-        Log.d("SettingListFragment", "activityCount ${ActivityCounter.activityCount}")
+
         //Создание кнопки назад в toolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(view.findViewById(R.id.toolbar_setting))
         (requireActivity() as AppCompatActivity).supportActionBar?.apply {

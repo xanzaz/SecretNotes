@@ -108,7 +108,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onStart() {
-        Log.d("MainActivity","onStart ${ActivityCounter.activityCount}")
+
 
         //Проверка было ли свернуто ли приложение в этом активити
         if (ActivityCounter.activityCount == 0)
@@ -127,7 +127,6 @@ class MainActivity : BaseActivity() {
             val selectedItemId: Int = bottomNavView.getSelectedItemId()
             if (selectedItemId in itemMenuNotes)
             {
-                Log.d("MainActivity","menu selected notes")
                 onChangeMenu(R.menu.bottom_navigation_main)
                 bottomNavView.setOnItemSelectedListener { item ->
                     listenerMain(item.itemId)
@@ -147,9 +146,6 @@ class MainActivity : BaseActivity() {
                 loadFragment(LoginFragment())
             isClose = false
         }
-
-
-        Log.d("MainActivity","onResume")
     }
 
 

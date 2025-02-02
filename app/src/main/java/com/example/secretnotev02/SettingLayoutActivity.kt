@@ -34,13 +34,5 @@ class SettingLayoutActivity : BaseActivity() {
             .replace(R.id.FrameSettingLayout, fragment)
             .commit()
     }
-    override fun onStart() {
-        super.onStart()
-        Log.d("SettingLayoutActivity", "onStart")
-    }
 
-    override fun onStop() {
-        super.onStop()
-        Log.d("SettingLayoutActivity", "onStop")
-    }
 }

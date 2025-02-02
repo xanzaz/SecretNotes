@@ -57,6 +57,8 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         mainActivity = requireActivity() as MainActivity
 
         val db = DbHelper(view.context,null)
@@ -268,6 +270,7 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
             }
         }
     }
+
 
 
 

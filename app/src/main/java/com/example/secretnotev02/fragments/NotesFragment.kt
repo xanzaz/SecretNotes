@@ -47,7 +47,6 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
         super.onCreate(savedInstanceState)
         //обработка возврата из LoginFragment
         parentFragmentManager.setFragmentResultListener("request",this) { key,bundle ->
-            Log.d("NotesFragment", "key = $key")
             if (key == "request")
             {
                 if(bundle.getString("kode")=="200")
@@ -187,8 +186,6 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
             intent.putExtra("position",position)
             addLauncher.launch(intent)
         }
-
-        Log.d("Notes","onItemClick: ${selectedItems.map { it }}")
     }
 
 //Обработка долгого нажатия на элемент из списка
@@ -197,8 +194,6 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
         noteTable.isActive = true
         selectedItems.add(noteTable)
         changeMenu()
-        Log.d("Notes","onItemLongClick: ${selectedItems.map { it }}")
-
     }
 
 //Метод шифровки заметок
