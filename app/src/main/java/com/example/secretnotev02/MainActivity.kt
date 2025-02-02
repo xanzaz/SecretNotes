@@ -3,6 +3,7 @@ package com.example.secretnotev02
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 class MainActivity : BaseActivity() {
 
     lateinit var bottomNavView: BottomNavigationView
+    private var isClose = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,11 +37,6 @@ class MainActivity : BaseActivity() {
         }
         loadFragment(NotesFragment())
 
-        ActivityCounter.onAppForegrounded =
-            {
-                if (bottomNavView.selectedItemId == R.id.nav_main_secret_notes)
-                    loadFragment(LoginFragment())
-            }
 
         //Кнопка переключения темы
         val radioButton = findViewById<FloatingActionButton>(R.id.floatingActionButton2)
@@ -123,5 +120,29 @@ class MainActivity : BaseActivity() {
             else -> return  true
         }
     }
+
+    override fun onStart() {
+        Log.d("MainActivity","onStart ${ActivityCounter.activityCount}")
+
+        //Проверка было ли свернуто ли приложение в этом активити
+        if (ActivityCounter.activityCount == 0)
+            isClose = true
+
+        super.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //Если было свернуто приложение на этом окне и было открыто секретыне заметки овзвращаем к регистрации
+        if (isClose)
+            if (bottomNavView.selectedItemId == R.id.nav_main_secret_notes)
+                loadFragment(LoginFragment())
+        Log.d("MainActivity","onResume")
+    }
+
+
+
+
+
 
 }
