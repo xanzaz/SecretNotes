@@ -66,48 +66,54 @@ class EditPassFragment : Fragment() {
                     //Проверка совпадения старого пароля с введенным паролем
                     if(hashPass == hashOldPass)
                     {
-                        //Проверка новых паролей
-                        if(newPass == repeateNewPass)
+                        //Проверка на совпадения старого и нового пароля
+                        if(oldPass != newPass)
                         {
-                            // перекодирование секретных заметок
-                            val hashNewPass = sha512(newPass)
-                            pref.saveValue("hashPass",hashNewPass)
-
-                            val hashNewPassForAES = sha256(newPass)
-                            val db = DbHelper(view.context,null)
-
-                            // Создаем объек шифровок если он не был создан
-                            if (AppData.AES == null)
-                                AppData.AES = AES(sha256(oldPass))
-
-                            // получение всех заметок и перекодируем с новым паролем
-                            val secretNotes = db.allSecretNotes().map {
-                                SecretNote(
-                                    id = it.id,
-                                    title = AppData.AES!!.reEncodingText(it.title,hashNewPassForAES),
-                                    content  = AppData.AES!!.reEncodingText(it.title,hashNewPassForAES),
-                                    date = AppData.AES!!.reEncodingText(it.date,hashNewPassForAES)
-                                )
-                            }
-
-                            // Псохраняем новый пароль
-                            AppData.AES!!.updateKeys(hashNewPassForAES)
-
-                            // Перезаписываем заметки в БД
-                            for (note in secretNotes)
+                            //Проверка новых паролей
+                            if(newPass == repeateNewPass)
                             {
-                                db.updateSecretNotes(note)
+                                // перекодирование секретных заметок
+                                val hashNewPass = sha512(newPass)
+                                pref.saveValue("hashPass",hashNewPass)
+
+                                val hashNewPassForAES = sha256(newPass)
+                                val db = DbHelper(view.context,null)
+
+                                // Создаем объек шифровок если он не был создан
+                                if (AppData.AES == null)
+                                    AppData.AES = AES(sha256(oldPass))
+
+                                // получение всех заметок и перекодируем с новым паролем
+                                val secretNotes = db.allSecretNotes().map {
+                                    SecretNote(
+                                        id = it.id,
+                                        title = AppData.AES!!.reEncodingText(it.title,hashNewPassForAES),
+                                        content  = AppData.AES!!.reEncodingText(it.title,hashNewPassForAES),
+                                        date = AppData.AES!!.reEncodingText(it.date,hashNewPassForAES)
+                                    )
+                                }
+
+                                // Псохраняем новый пароль
+                                AppData.AES!!.updateKeys(hashNewPassForAES)
+
+                                // Перезаписываем заметки в БД
+                                for (note in secretNotes)
+                                {
+                                    db.updateSecretNotes(note)
+                                }
+
+
+                                Toast.makeText(view.context, "Пароль изменен", Toast.LENGTH_SHORT).show()
+                                settingActivity.loadFragment(SettingListFragment())
                             }
-
-
-                            Toast.makeText(view.context, "Пароль изменен", Toast.LENGTH_SHORT).show()
-                            settingActivity.loadFragment(SettingListFragment())
+                            else
+                                Toast.makeText(view.context, "Новые пароль не совпадают", Toast.LENGTH_SHORT).show()
                         }
-                        else
-                            Toast.makeText(view.context, "Новые пароль не совпадают", Toast.LENGTH_SHORT).show()
+                        else Toast.makeText(view.context, "Старый и новый пароль совпадают", Toast.LENGTH_SHORT).show()
                     }
                     else Toast.makeText(view.context, "Старый пароль не правильный", Toast.LENGTH_SHORT).show()
                 }
+                else Toast.makeText(view.context, "У вас не создан пароль", Toast.LENGTH_SHORT).show()
             }
         }
 
