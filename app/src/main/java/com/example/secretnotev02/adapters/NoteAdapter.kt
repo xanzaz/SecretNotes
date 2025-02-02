@@ -9,20 +9,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.secretnotev02.R
 import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.databinding.NoteItemRvBinding
+import com.example.secretnotev02.scripts.highlightMatches
 import java.nio.charset.Charset
 
 class NoteAdapter(private var notesTable: MutableList<NoteTable>)
     : RecyclerView.Adapter<NoteAdapter.MyViewHolder>()  {
 
-
+    private var currentQuery: String? = null
 
     class MyViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val binding = NoteItemRvBinding.bind(view)
 
-        fun bind(noteTable: NoteTable) = with(binding)
+        fun bind(noteTable: NoteTable, query: String?) = with(binding)
         {
-            titleNote.text = noteTable.title
-            contentNote.text = noteTable.content
+            titleNote.text = highlightMatches(noteTable.title,query)
+            contentNote.text = highlightMatches(noteTable.content,query)
             dateNote.text = noteTable.date
         }
     }
@@ -51,7 +52,7 @@ class NoteAdapter(private var notesTable: MutableList<NoteTable>)
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         //Заполнение полей
-        holder.bind(notesTable[position])
+        holder.bind(notesTable[position], query = currentQuery)
 
         //обновление поля isActive
         holder.itemView.isActivated = notesTable[position].isActive
@@ -102,6 +103,16 @@ class NoteAdapter(private var notesTable: MutableList<NoteTable>)
         notifyDataSetChanged()
     }
 
+    //обнавляет весь список
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(newNotesTable: List<NoteTable>, query: String?)
+    {
+        notesTable = newNotesTable.toMutableList()
+        currentQuery = query
+        notifyDataSetChanged()
+
+    }
+
     //очищение всего списка
     @SuppressLint("NotifyDataSetChanged")
     fun clearAllActived() {
@@ -109,5 +120,10 @@ class NoteAdapter(private var notesTable: MutableList<NoteTable>)
             note.isActive = false
         notifyDataSetChanged()
     }
+
+
+
+
+
 
 }

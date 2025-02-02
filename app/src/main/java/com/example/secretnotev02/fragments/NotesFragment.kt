@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.commit
@@ -122,6 +123,29 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
                 addLauncher.launch(Intent(view.context,AddNoteActivity::class.java))
                 changeMenu()
             }
+
+            //Обработчик поиска
+            SvNotes.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    val filteredNoteTable = if(newText.isNullOrEmpty())
+                    {
+                        notesTableList
+                    }
+                    else
+                    {
+                        notesTableList.filter { noteTable ->
+                            noteTable.title.contains(newText,true) || noteTable.content.contains(newText,true)
+                        }
+                    }
+                    adapter.updateList(filteredNoteTable,newText)
+                    return true
+                }
+
+            })
         }
     }
 

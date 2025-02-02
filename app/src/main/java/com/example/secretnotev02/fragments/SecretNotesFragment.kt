@@ -23,6 +23,7 @@ import com.example.secretnotev02.MainActivity
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.PackageManagerCompat
 import com.example.secretnotev02.R
 import com.example.secretnotev02.adapters.NoteAdapter
@@ -94,6 +95,29 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
             ABAddSecretNote.setOnClickListener {
                 addLauncher.launch(Intent(view.context,AddSecretNoteActivity::class.java))
             }
+
+            //Обработчик поиска
+            SvNotes.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    val filteredNoteTable = if(newText.isNullOrEmpty())
+                    {
+                        notesTableList
+                    }
+                    else
+                    {
+                        notesTableList.filter { noteTable ->
+                            noteTable.title.contains(newText,true) || noteTable.content.contains(newText,true)
+                        }
+                    }
+                    adapter.updateList(filteredNoteTable,newText)
+                    return true
+                }
+
+            })
 
         }
 
