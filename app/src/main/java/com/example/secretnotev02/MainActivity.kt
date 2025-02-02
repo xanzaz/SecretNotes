@@ -36,18 +36,6 @@ class MainActivity : BaseActivity() {
         loadFragment(NotesFragment())
 
 
-        //Кнопка переключения темы
-        val radioButton = findViewById<FloatingActionButton>(R.id.floatingActionButton2)
-        radioButton.setOnClickListener {
-            val isNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-            if (isNightMode == Configuration.UI_MODE_NIGHT_YES) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                androidx.cardview.R.style.CardView
-            }
-        }
-
         //Первый запуск
         val pref = Pref(this)
         if (pref.getValue("isFirst","false")=="false") {
