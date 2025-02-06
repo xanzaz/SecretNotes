@@ -11,6 +11,9 @@ import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.databinding.NoteItemRvBinding
 import com.example.secretnotev02.scripts.highlightMatches
 import java.nio.charset.Charset
+import java.util.Locale
+import kotlin.math.max
+import kotlin.math.min
 
 class NoteAdapter(private var notesTable: MutableList<NoteTable>)
     : RecyclerView.Adapter<NoteAdapter.MyViewHolder>()  {
@@ -20,11 +23,17 @@ class NoteAdapter(private var notesTable: MutableList<NoteTable>)
     class MyViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val binding = NoteItemRvBinding.bind(view)
 
-        fun bind(noteTable: NoteTable, query: String?) = with(binding)
+        fun bind(
+            truncatedTitle: String,
+            truncatedContent: String,
+            date: String,
+            query: String?
+        ) = with(binding)
         {
-            titleNote.text = highlightMatches(noteTable.title,query)
-            contentNote.text = highlightMatches(noteTable.content,query)
-            dateNote.text = noteTable.date
+            titleNote.text = highlightMatches(truncatedTitle,query)
+            contentNote.text = highlightMatches(truncatedContent,query)
+            dateNote.text = date
+
         }
     }
 
@@ -51,8 +60,12 @@ class NoteAdapter(private var notesTable: MutableList<NoteTable>)
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        val truncatedTitle = truncateAroundMatch(notesTable[position].title,currentQuery,50)
+        val truncatedContent = truncateAroundMatch(notesTable[position].content,currentQuery,50)
+        val date = notesTable[position].date
+
         //Заполнение полей
-        holder.bind(notesTable[position], query = currentQuery)
+        holder.bind(truncatedTitle,truncatedContent,date, query = currentQuery)
 
         //обновление поля isActive
         holder.itemView.isActivated = notesTable[position].isActive
@@ -121,6 +134,27 @@ class NoteAdapter(private var notesTable: MutableList<NoteTable>)
         notifyDataSetChanged()
     }
 
+    private fun truncateAroundMatch(fullText: String, query: String?, maxLength: Int = 100): String {
+        if (query.isNullOrEmpty()) return fullText
+
+        val lowerText = fullText.lowercase(Locale.getDefault())
+        val lowerQuery = query.lowercase(Locale.getDefault())
+        val matchIndex = lowerText.indexOf(lowerQuery)
+
+        if (matchIndex == -1) return fullText
+
+        // Вычисляем диапазон обрезки
+        val start = max(0, matchIndex - maxLength / 2)
+        val end = min(fullText.length, matchIndex + query.length + maxLength / 2)
+
+        val truncated = buildString {
+            if (start > 0) append("...")
+            append(fullText.substring(start, end))
+            if (end < fullText.length) append("...")
+        }
+
+        return truncated.replace("\n","")
+    }
 
 
 
