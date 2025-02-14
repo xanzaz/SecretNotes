@@ -26,6 +26,8 @@ import com.example.secretnotev02.DB.Note
 import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.DB.SecretNote
 import com.example.secretnotev02.MainActivity
+import com.example.secretnotev02.NoteActivity
+import com.example.secretnotev02.NoteActivity2
 import com.example.secretnotev02.R
 import com.example.secretnotev02.databinding.FragmentNotesBinding
 import com.example.secretnotev02.scripts.AppData
@@ -42,6 +44,9 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
 //    private var isSelectetItem: Boolean = false
     private var isClearSelectedItem: Boolean = false
     private var listState: Parcelable? = null
+
+    //Текст поиска
+    private var query: String? = null
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +93,7 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
         adapter = NoteAdapter(notesTableList.toMutableList())
         adapter.setListener(this)
 
-        //обработка получения данных из активити (AddNoteActivity)
+        //обработка получения данных из активити (NoteActivity)
         addLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
             // если было создание
             if(it.resultCode == RESULT_OK)
@@ -98,12 +103,15 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
             // если было обновление
             else if(it.resultCode == 200)
             {
-                val position_out = it.data?.getIntExtra("position",-1)
+                val position_out = it.data?.getIntExtra("position",-2)
                 val note_out = it.data?.getSerializableExtra("note") as Note
+                Log.d("NotesFragment","addLauncher note_out $position_out")
                 if (position_out!! >=  0)
                 {
                     adapter.updateNote(position_out,note_out.toNoteTable())
                 }
+                else if (position_out == -1)
+                    adapter.addNote(note_out.toNoteTable())
             }
         }
 
@@ -120,7 +128,8 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
 //                isSelectetItem = false
                 selectedItems.clear()
                 adapter.clearAllActived()
-                addLauncher.launch(Intent(view.context,AddNoteActivity::class.java))
+//                addLauncher.launch(Intent(view.context,AddNoteActivity::class.java))
+                addLauncher.launch(Intent(view.context, NoteActivity2::class.java))
                 changeMenu()
             }
 
@@ -131,6 +140,7 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
+                    query = newText
                     val filteredNoteTable = if(newText.isNullOrEmpty())
                     {
                         notesTableList
@@ -205,9 +215,11 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
         //Режим изменения
         else {
             //открываем окно для изменения
-            val intent = Intent(this.context,AddNoteActivity::class.java)
+//            val intent = Intent(this.context,AddNoteActivity::class.java)
+            val intent = Intent(this.context,NoteActivity2::class.java)
             intent.putExtra("note",noteTable.toNote())
             intent.putExtra("position",position)
+            intent.putExtra("query", query)
             addLauncher.launch(intent)
         }
     }

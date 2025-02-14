@@ -62,18 +62,19 @@ class LoginFragment : Fragment() {
                         AppData.isLogin = true
 
                         //проверка от куда был вызван фрагмент
-                        if (activity is MainActivity)
-                        {
-                            //из главной страницы
-                            (activity as MainActivity).loadFragment(SecretNotesFragment())
-                        }
-                        else if (callingFunction == "NotesFragment" || callingFunction == "SettingListFragment")
+
+                        if (callingFunction == "NotesFragment" || callingFunction == "SettingListFragment")
                         {
                             //из фрагмента NotesFragment
                             //Возвращается обратно в фрагмет с кодом 200
                             val resulte = bundleOf("kode" to "200")
                             parentFragmentManager.setFragmentResult("request",resulte)
                             parentFragmentManager.popBackStack()
+                        }
+                        else if (activity is MainActivity)
+                        {
+                            //из главной страницы
+                            (activity as MainActivity).loadFragment(SecretNotesFragment())
                         }
 
 

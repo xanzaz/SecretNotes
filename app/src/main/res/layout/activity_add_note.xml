@@ -20,7 +20,9 @@
         android:inputType="text"
         app:layout_constraintStart_toStartOf="parent"
 
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:focusableInTouchMode="false"
+        />
 
     <EditText
         android:id="@+id/ET_content"
@@ -34,9 +36,12 @@
         android:gravity="start|top"
         android:hint="Содержание"
         android:inputType="textMultiLine"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ET_title" />
+        app:layout_constraintTop_toBottomOf="@+id/ET_title"
+        android:focusableInTouchMode="false"
+        />
 
     <Button
         android:id="@+id/Btn_create"

@@ -5,9 +5,9 @@ import java.io.Serializable
 
 data class NoteTable (
     var id: Int,
-    val title: String,
-    val content: String,
-    val date: String,
+    var title: String,
+    var content: String,
+    var date: String,
     var isActive: Boolean = false
 ): Serializable
 {
