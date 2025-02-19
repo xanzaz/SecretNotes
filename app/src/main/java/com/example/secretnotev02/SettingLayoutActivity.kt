@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import com.example.secretnotev02.customActivity.BaseActivity
 import com.example.secretnotev02.databinding.ActivitySettingLayoutBinding
 import com.example.secretnotev02.fragments.SettingListFragment
 

@@ -1,11 +1,8 @@
 package com.example.secretnotev02.fragments
 
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,23 +12,19 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.secretnotev02.AddSecretNoteActivity
+import com.example.secretnotev02.SecretNoteActivity
 import com.example.secretnotev02.DB.DbHelper
 import com.example.secretnotev02.DB.Note
 import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.MainActivity
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.PackageManagerCompat
 import com.example.secretnotev02.R
 import com.example.secretnotev02.adapters.NoteAdapter
 
 import com.example.secretnotev02.databinding.FragmentSecretNotesBinding
 import com.example.secretnotev02.scripts.exportSecretNotes
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 
 class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
@@ -45,6 +38,8 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
 
     private var selectedItems = mutableSetOf<NoteTable>()
     private var isClearSelectedItem: Boolean = false
+
+    private var query: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +58,7 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
         mainActivity = requireActivity() as MainActivity
 
         val db = DbHelper(view.context,null)
-        val notesTableList = db.allSecretNotes().map { it.toNote().toNoteTable() }
+        val notesTableList = db.allSecretNotes().map { it.toNote().toNoteTable() }.toMutableList()
 
         adapter = NoteAdapter(notesTableList.toMutableList())
         adapter.setListener(this)
@@ -73,15 +68,27 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
         {
             // создание заметки
             if(it.resultCode == RESULT_OK) {
-                adapter.addNote((it.data?.getSerializableExtra("note") as Note).toNoteTable())
+//                adapter.addNote((it.data?.getSerializableExtra("note") as Note).toNoteTable())
+                notesTableList.add((it.data?.getSerializableExtra("note") as Note).toNoteTable())
+                adapter.updateList(notesTableList,query)
             }
             //обновление заметки
             else if (it.resultCode == 200) {
-                val position_out = it.data?.getIntExtra("position",-1)?: -1
+                val index_note: Int
+                val position_out = it.data?.getIntExtra("position",-2)
                 val note_out = it.data?.getSerializableExtra("note") as Note
                 if (position_out!! >=  0)
                 {
-                    adapter.updateNote(position_out,note_out.toNoteTable())
+                    index_note = notesTableList.binarySearch {it.id - note_out.id!!}
+                    notesTableList[index_note] = note_out.toNoteTable()
+                    adapter.updateList(notesTableList,query)
+//                    adapter.updateNote(position_out,note_out.toNoteTable())
+                }
+                else if (position_out == -1)
+                {
+                    notesTableList.add((it.data?.getSerializableExtra("note") as Note).toNoteTable())
+                    adapter.updateList(notesTableList,query)
+//                    adapter.addNote(note_out.toNoteTable())
                 }
             }
         }
@@ -93,7 +100,10 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
 
             //Запуск активити для создания
             ABAddSecretNote.setOnClickListener {
-                addLauncher.launch(Intent(view.context,AddSecretNoteActivity::class.java))
+                selectedItems.clear()
+                adapter.clearAllActived()
+                changeMenu()
+                addLauncher.launch(Intent(view.context,SecretNoteActivity::class.java))
             }
 
             //Обработчик поиска
@@ -103,6 +113,7 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
+                    query = newText
                     val filteredNoteTable = if(newText.isNullOrEmpty())
                     {
                         notesTableList
@@ -164,9 +175,10 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
         }
         else
         {
-            val intent = Intent(this.context,AddSecretNoteActivity()::class.java)
+            val intent = Intent(this.context,SecretNoteActivity()::class.java)
             intent.putExtra("note",noteTable.toNote())
             intent.putExtra("position",position)
+            intent.putExtra("query", query)
             addLauncher.launch(intent)
         }
 

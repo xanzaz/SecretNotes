@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.secretnotes.scripts.Pref
+import com.example.secretnotev02.customActivity.BaseActivity
 import com.example.secretnotev02.fragments.LoginFragment
 import com.example.secretnotev02.fragments.NotesFragment
 import com.example.secretnotev02.fragments.RegistrationFragment

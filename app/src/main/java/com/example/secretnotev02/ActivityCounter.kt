@@ -43,17 +43,5 @@ object ActivityCounter {
     var onAppForegrounded: (() -> Unit)? = null
 }
 
-abstract class BaseActivity:  AppCompatActivity()
-{
-    override fun onStart() {
-        super.onStart()
-        ActivityCounter.activityStarted()
-    }
 
-    override fun onStop() {
-        super.onStop()
-        ActivityCounter.activityStopped()
-    }
-
-}
 

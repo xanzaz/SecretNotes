@@ -1,20 +1,12 @@
 package com.example.secretnotev02
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
-import android.view.GestureDetector
-import android.view.Menu
-import android.view.MenuItem
 import android.view.MotionEvent
-import android.view.View
-import android.view.ViewTreeObserver
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -22,27 +14,23 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.secretnotev02.DB.DbHelper
 import com.example.secretnotev02.DB.Note
+import com.example.secretnotev02.DB.SecretNote
+import com.example.secretnotev02.customActivity.CustomNoteActivity
 import com.example.secretnotev02.databinding.ActivityNoteBinding
+import com.example.secretnotev02.scripts.AppData
 import com.example.secretnotev02.scripts.highlightMatches
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.abs
 
-class NoteActivity2 : BaseActivity() {
+class SecretNoteActivity : CustomNoteActivity() {
 
-    private lateinit var binding: ActivityNoteBinding
-    private lateinit var menu: Menu
+    lateinit var binding: ActivityNoteBinding
     private var searchQuery: String? = null
-
-    private var resultCode: Int = RESULT_CANCELED
-    private lateinit var intent_out: Intent
 
     private var isScrolling = false // Флаг для отслеживания прокрутки
     private var startX = 0f // Начальная координата X касания
     private var startY = 0f // Начальная координата Y касания
-
-
 
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -56,13 +44,12 @@ class NoteActivity2 : BaseActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        Log.d("NoteActivity2", "Start")
 
+        Log.d("SecretNoteActivity", "Start")
         //Создание нужных переменных
-        var isUpdate: Boolean = false
+        var isUpdate = false
         intent_out = Intent()
         var idNote: Int? = null
-
 
         //Создание кнопки назад в toolbar
         setSupportActionBar(binding.toolbarNote)
@@ -73,47 +60,61 @@ class NoteActivity2 : BaseActivity() {
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
         val formattedDateTime = currentDateTime.format(formatter)
 
-        //получение обьекта для изменения
+        //Получение обьекта для изменения
         var inp_note = intent.getSerializableExtra("note") as Note?
         searchQuery = intent.getStringExtra("query")
+        Log.d("SecretNoteActivity", "searchQuery = $searchQuery")
         if (inp_note is Note)
         {
-            idNote=inp_note.id!!
-            //Заполнение полей
+            Log.d("SecretNoteActivity", "Заполнение полей")
+            idNote = inp_note.id
+            //Заполнение полей данными
             binding.apply {
-                ETTitle.setText(highlightMatches(inp_note.title,searchQuery))
-                ETContent.setText(highlightMatches(inp_note.content,searchQuery))
-                TVDate.setText(inp_note.date)
+                ETTitle.setText(highlightMatches(inp_note.title.trim(), searchQuery))
+                ETContent.setText(highlightMatches(inp_note.content.trim(), searchQuery))
+                TVDate.setText(inp_note.date.trim())
                 isUpdate = true
 
                 // Прокрутка к первому совпадению в content
                 val firstMatchPos = findFirstMatchPosition(inp_note.content, searchQuery)
-                Log.d("AddNoteActivity", "firstMatchPos $firstMatchPos")
+                Log.d("SecretNoteActivity", "firstMatchPos $firstMatchPos")
                 if (firstMatchPos != -1) {
                     scrollToPosition(ETContent, firstMatchPos)
                 }
 
+                //очистка подсветки если пользователь нажал на текст
                 ETTitle.setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) ETTitle.text = Editable.Factory.getInstance().newEditable(inp_note.title)
+                    if (hasFocus && searchQuery != null) {
+                        ETTitle.text = Editable.Factory.getInstance().newEditable(inp_note.title)
+                        ETContent.text = Editable.Factory.getInstance().newEditable(inp_note.content)
+                        searchQuery = null
+                    }
                 }
                 ETContent.setOnFocusChangeListener{_, hasFocus ->
-                    if (hasFocus) ETContent.text = Editable.Factory.getInstance().newEditable(inp_note.content)
+                    if (hasFocus && searchQuery != null) {
+                        ETContent.text = Editable.Factory.getInstance().newEditable(inp_note.content)
+                        ETTitle.text = Editable.Factory.getInstance().newEditable(inp_note.title)
+                        searchQuery = null
+                    }
                 }
+
             }
         }
         else
         {
+
+
             binding.TVDate.setText(formattedDateTime)
+
         }
 
-        //Обработчик нажатия кнопки check_mark (Ok)
+
         binding.toolbarNote.setOnMenuItemClickListener {item ->
             when(item.itemId)
             {
                 R.id.check_mark ->
                 {
-                    Log.d("NoteActivity","Click btn 'Ok'")
-
+                    Log.d("SecretNoteActivity", "Click btn 'Ok'")
                     // получение значения полей
                     val title = binding.ETTitle.text.toString().trim()
                     val content = binding.ETContent.text.toString().trim()
@@ -123,48 +124,58 @@ class NoteActivity2 : BaseActivity() {
                     if(title == "" || content == "")
                         Toast.makeText(this,"Не все поля заполнены", Toast.LENGTH_SHORT).show()
                     else {
+
                         val db = DbHelper(this,null)
+                        //Обновление обьекта
                         if (isUpdate)
                         {
-                            val note = Note(
+                            val secretNote = SecretNote(
                                 id = idNote,
-                                title = title,
-                                content = content,
-                                date = formattedDateTime
-                            )
-                            db.updateNotes(note)
+                                title = AppData.AES!!.encodingText(title),
+                                content = AppData.AES!!.encodingText(content),
+                                date = AppData.AES!!.encodingText(formattedDateTime))
+
+                            val note = Note(idNote,title,content,formattedDateTime)
+                            db.updateSecretNotes(secretNote)
+                            //Передача заметки обратно на фрагмент для изменения обьекта в списке
                             intent_out.apply {
                                 putExtra("note",note)
                                 putExtra("position",intent.getIntExtra("position",-1))
                             }
                             resultCode = 200
-                            Log.d("NoteActivity","Изменина заметка $note")
+                            Log.d("SecretNoteActivity","Изменина заметка $note")
                         }
+                        //Создание обьекта
                         else
                         {
-                            val note = Note(null,title,content,date)
-                            //Режим создания
-                            idNote = db.addNote(note)
-                            note.id = idNote
+
+                            val secretNote = SecretNote(
+                                null,
+                                AppData.AES!!.encodingText(title),
+                                AppData.AES!!.encodingText(content),
+                                AppData.AES!!.encodingText(date))
+
+                            idNote = db.addSecretNote(secretNote)
+                            val note = Note(idNote,title,content,date)
+
+                            //Передача заметки обратно на фрагмент для создания обьекта в списке
                             intent_out.apply {
                                 putExtra("note",note)
                             }
                             resultCode = RESULT_OK
                             isUpdate = true
-                            Log.d("NoteActivity","Создана заметка $note")
-
-
+                            Log.d("SecretNoteActivity","Создана заметка $note")
                         }
                     }
-                    disableEditing(binding.ETContent)
                     disableEditing(binding.ETTitle)
+                    disableEditing(binding.ETContent)
                     true
                 }
                 else -> true
             }
         }
 
-        //Обработчик EditText Title
+//        Обработчик EditText Title
         binding.ETTitle.setOnTouchListener {v,event ->
             when(event.action)
             {
@@ -204,7 +215,7 @@ class NoteActivity2 : BaseActivity() {
                 }
                 MotionEvent.ACTION_MOVE ->
                 {
-                    if(abs(event.x - startX) > 10 || abs(event.y - startY)>10)
+                    if(abs(event.x - startX) > 10 || abs(event.y - startY) >10)
                     {
                         isScrolling = true
                     }
@@ -226,141 +237,21 @@ class NoteActivity2 : BaseActivity() {
             false
         }
 
-    }
 
-
-
-    //Создание меню
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if (currentFocus is EditText )
-            menuInflater.inflate(R.menu.toolbar_notes, menu)
-        this.menu = menu!!
-        return true
-    }
-
-    private fun createMenu() {
-        menu.clear()
-        invalidateOptionsMenu()
-    }
-
-
-    //Обработка toolbar кнопок
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                // Обработка нажатия на кнопку "Назад"
-
-                setResult(resultCode,intent_out)
-                finish()
-                true
-            }
-            else -> true
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
-    //Включение режима редактирования
-    private fun enableEditing(editText: EditText) {
-
-        editText.isFocusableInTouchMode = true
-        editText.isFocusable = true
-        editText.requestFocus()
-
-        // Открыть клавиатуру
-        showKeyboard(editText)
-
-        createMenu()
-    }
-
-    //Выключение режима редактирования
-    private fun disableEditing(editText: EditText) {
-        editText.isFocusable = false
-        editText.isFocusableInTouchMode = false
-        editText.clearFocus()
-
-        // Скрыть клавиатуру
-        hideKeyboard(editText)
-
-        menu.clear()
-    }
-
-    //метод получения индекса первого найденого тескта поиска
-    private fun findFirstMatchPosition(text: String, query: String?): Int {
-        if (query.isNullOrEmpty()) return -1
-        return text.lowercase(Locale.getDefault())
-            .indexOf(query.lowercase(Locale.getDefault()))
-    }
-
-    //Метод прокрутки в editText до нужного текста
-    private fun scrollToPosition(editText: EditText, position: Int) {
-        editText.post {
-            editText.viewTreeObserver.addOnGlobalLayoutListener(
-                object : ViewTreeObserver.OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        editText.layout?.let { layout ->
-                            if (position < 0 || position >= layout.text.length) return
-                            val line = layout.getLineForOffset(position)
-                            // Получаем верхнюю границу строки
-                            val targetY = layout.getLineTop(line)
-
-                            // Текущая высота видимой области
-                            val visibleHeight = editText.height
-
-                            // Если текст короче видимой области — не прокручиваем
-                            if (layout.height <= visibleHeight) return
-
-                            // Прокручиваем так, чтобы строка была в центре видимой области
-                            val scrollY = targetY - visibleHeight / 2
-
-                            // Ограничиваем прокрутку в пределах текста
-                            val maxScroll = layout.height - visibleHeight
-                            val finalScroll = scrollY.coerceIn(0, maxScroll)
-
-                            editText.scrollTo(0, finalScroll)
-                        }
-                        editText.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    }
-                }
-            )
-        }
-    }
-
-    //Открытие клавитуры
-    private fun showKeyboard(view: View){
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT)
-    }
-
-    //Закрытие клавиатуры
-    private fun hideKeyboard(view: View){
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken,0)
-    }
-
-    // Очистить фокус
-    fun clearFocus(v: View) {
-        val rootView = currentFocus?.rootView // или findViewById<View>(android.R.id.content)
-        rootView?.apply {
-            isFocusableInTouchMode = true
-            isFocusable = true
-            requestFocus()
-        }
-        currentFocus?.clearFocus()
     }
     override fun onBackPressed() {
         val currentFocus = currentFocus
-        if (currentFocus != null) {
-            currentFocus.isFocusableInTouchMode = true
-            currentFocus.isFocusable = true
-
-            hideKeyboard(currentFocus)
-            clearFocus(currentFocus)
-        } else {
+        if (currentFocus != null)
+        {
+            disableEditing(binding.ETTitle)
+            disableEditing(binding.ETContent)
+        }
+        else
+        {
+            setResult(resultCode,intent_out)
+            finish()
             super.onBackPressed()
         }
 
     }
-
-
 }

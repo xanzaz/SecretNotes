@@ -3,7 +3,6 @@ package com.example.secretnotev02.fragments
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
@@ -15,11 +14,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
-import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.secretnotev02.AddNoteActivity
 import com.example.secretnotev02.DB.DbHelper
 import com.example.secretnotev02.adapters.NoteAdapter
 import com.example.secretnotev02.DB.Note
@@ -27,10 +23,10 @@ import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.DB.SecretNote
 import com.example.secretnotev02.MainActivity
 import com.example.secretnotev02.NoteActivity
-import com.example.secretnotev02.NoteActivity2
 import com.example.secretnotev02.R
 import com.example.secretnotev02.databinding.FragmentNotesBinding
 import com.example.secretnotev02.scripts.AppData
+import kotlin.math.sign
 
 
 class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
@@ -51,6 +47,7 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         //обработка возврата из LoginFragment
         parentFragmentManager.setFragmentResultListener("request",this) { key,bundle ->
             if (key == "request")
@@ -85,7 +82,7 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
             //получение заметок из БД и преобразовываем в NoteTable(тип данных для списка)
         val db = DbHelper(view.context,null)
         val notes_list = db.allNotes()
-        val notesTableList = notes_list.map {it.toNoteTable()}
+        val notesTableList = notes_list.map {it.toNoteTable()}.toMutableList()
 
 
 
@@ -98,20 +95,33 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
             // если было создание
             if(it.resultCode == RESULT_OK)
             {
-                adapter.addNote((it.data?.getSerializableExtra("note") as Note).toNoteTable())
+//                binding.SvNotes.setQuery("",false)
+                notesTableList.add((it.data?.getSerializableExtra("note") as Note).toNoteTable())
+                adapter.updateList(notesTableList,query)
             }
             // если было обновление
             else if(it.resultCode == 200)
             {
+//                binding.SvNotes.setQuery("",false)
+                val index_note: Int
                 val position_out = it.data?.getIntExtra("position",-2)
                 val note_out = it.data?.getSerializableExtra("note") as Note
                 Log.d("NotesFragment","addLauncher note_out $position_out")
                 if (position_out!! >=  0)
                 {
-                    adapter.updateNote(position_out,note_out.toNoteTable())
+                    index_note = notesTableList.binarySearch {it.id - note_out.id!!}
+                    notesTableList[index_note] = note_out.toNoteTable()
+                    adapter.updateList(notesTableList,query)
+
+//                    adapter.updateNote(position_out,note_out.toNoteTable())
                 }
                 else if (position_out == -1)
-                    adapter.addNote(note_out.toNoteTable())
+                {
+                    notesTableList.add((it.data?.getSerializableExtra("note") as Note).toNoteTable())
+                    adapter.updateList(notesTableList,query)
+//                    adapter.addNote(note_out.toNoteTable())
+                }
+
             }
         }
 
@@ -129,7 +139,7 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
                 selectedItems.clear()
                 adapter.clearAllActived()
 //                addLauncher.launch(Intent(view.context,AddNoteActivity::class.java))
-                addLauncher.launch(Intent(view.context, NoteActivity2::class.java))
+                addLauncher.launch(Intent(view.context, NoteActivity::class.java))
                 changeMenu()
             }
 
@@ -216,7 +226,7 @@ class NotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener {
         else {
             //открываем окно для изменения
 //            val intent = Intent(this.context,AddNoteActivity::class.java)
-            val intent = Intent(this.context,NoteActivity2::class.java)
+            val intent = Intent(this.context,NoteActivity::class.java)
             intent.putExtra("note",noteTable.toNote())
             intent.putExtra("position",position)
             intent.putExtra("query", query)

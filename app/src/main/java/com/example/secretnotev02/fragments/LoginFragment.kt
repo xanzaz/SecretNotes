@@ -11,9 +11,10 @@ import com.example.secretnotes.scripts.AES.AES
 import com.example.secretnotes.scripts.Pref
 import com.example.secretnotes.scripts.sha256
 import com.example.secretnotes.scripts.sha512
-import com.example.secretnotev02.BaseActivity
+
 import com.example.secretnotev02.MainActivity
 import com.example.secretnotev02.SettingLayoutActivity
+import com.example.secretnotev02.customActivity.BaseActivity
 import com.example.secretnotev02.databinding.FragmentLoginBinding
 import com.example.secretnotev02.scripts.AppData
 

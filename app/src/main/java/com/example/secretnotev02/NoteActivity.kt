@@ -1,50 +1,38 @@
 package com.example.secretnotev02
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
-import android.view.GestureDetector
-import android.view.Menu
-import android.view.MenuItem
 import android.view.MotionEvent
-import android.view.View
-import android.view.ViewTreeObserver
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.secretnotev02.DB.DbHelper
 import com.example.secretnotev02.DB.Note
+import com.example.secretnotev02.customActivity.CustomNoteActivity
 import com.example.secretnotev02.databinding.ActivityNoteBinding
 import com.example.secretnotev02.scripts.highlightMatches
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.abs
 
-class NoteActivity : BaseActivity() {
+class NoteActivity : CustomNoteActivity() {
 
     private lateinit var binding: ActivityNoteBinding
-    private lateinit var menu: Menu
+//    private lateinit var menu: Menu
     private var searchQuery: String? = null
 
-    private var resultCode: Int = RESULT_CANCELED
-    private lateinit var intent_out: Intent
+//    private var resultCode: Int = RESULT_CANCELED
+//    private lateinit var intent_out: Intent
 
-    private lateinit var rootView: View
-    private lateinit var globalLayoutListener: ViewTreeObserver.OnGlobalLayoutListener
-    private lateinit var gestureDetector: GestureDetector
-
-    private var isSelectingText = false // Флаг для отслеживания выделения
+    private var isScrolling = false // Флаг для отслеживания прокрутки
+    private var startX = 0f // Начальная координата X касания
+    private var startY = 0f // Начальная координата Y касания
 
 
 
@@ -60,15 +48,10 @@ class NoteActivity : BaseActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        // Инициализация GestureDetector
-//
-//        setupEditTextGestures()
-//        disableEditing(binding.ETTitle)
-//        disableEditing(binding.ETContent)
+        Log.d("NoteActivity", "Start")
 
         //Создание нужных переменных
-        var isUpdate: Boolean = false
+        var isUpdate = false
         intent_out = Intent()
         var idNote: Int? = null
 
@@ -87,7 +70,8 @@ class NoteActivity : BaseActivity() {
         searchQuery = intent.getStringExtra("query")
         if (inp_note is Note)
         {
-            idNote=inp_note.id!!
+            Log.d("NoteActivity", "Заполнение полей")
+            idNote=inp_note.id
             //Заполнение полей
             binding.apply {
                 ETTitle.setText(highlightMatches(inp_note.title,searchQuery))
@@ -97,16 +81,25 @@ class NoteActivity : BaseActivity() {
 
                 // Прокрутка к первому совпадению в content
                 val firstMatchPos = findFirstMatchPosition(inp_note.content, searchQuery)
-                Log.d("AddNoteActivity", "firstMatchPos $firstMatchPos")
+                Log.d("NoteActivity2", "firstMatchPos $firstMatchPos")
                 if (firstMatchPos != -1) {
                     scrollToPosition(ETContent, firstMatchPos)
                 }
 
+                //очистка подсветки если пользователь нажал на текст
                 ETTitle.setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) ETTitle.text = Editable.Factory.getInstance().newEditable(inp_note.title)
+                    if (hasFocus && searchQuery != null) {
+                        ETTitle.text = Editable.Factory.getInstance().newEditable(inp_note.title)
+                        ETContent.text = Editable.Factory.getInstance().newEditable(inp_note.content)
+                        searchQuery = null
+                    }
                 }
                 ETContent.setOnFocusChangeListener{_, hasFocus ->
-                    if (hasFocus) ETContent.text = Editable.Factory.getInstance().newEditable(inp_note.content)
+                    if (hasFocus && searchQuery != null) {
+                        ETContent.text = Editable.Factory.getInstance().newEditable(inp_note.content)
+                        ETTitle.text = Editable.Factory.getInstance().newEditable(inp_note.title)
+                        searchQuery = null
+                    }
                 }
             }
         }
@@ -155,16 +148,16 @@ class NoteActivity : BaseActivity() {
                             //Режим создания
                             idNote = db.addNote(note)
                             note.id = idNote
+
                             intent_out.apply {
                                 putExtra("note",note)
                             }
                             resultCode = RESULT_OK
                             isUpdate = true
                             Log.d("NoteActivity","Создана заметка $note")
-
-
                         }
                     }
+
                     disableEditing(binding.ETContent)
                     disableEditing(binding.ETTitle)
                     true
@@ -173,211 +166,205 @@ class NoteActivity : BaseActivity() {
             }
         }
 
-    }
-
-
-
-    //Создание меню
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if (currentFocus is EditText )
-            menuInflater.inflate(R.menu.toolbar_notes, menu)
-        this.menu = menu!!
-        return true
-    }
-
-    private fun createMenu() {
-        menu.clear()
-        invalidateOptionsMenu()
-    }
-
-
-    //Обработка toolbar кнопок
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                // Обработка нажатия на кнопку "Назад"
-
-                setResult(resultCode,intent_out)
-                finish()
-                true
-            }
-            else -> true
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
-    //Включение режима редактирования
-    private fun enableEditing(editText: EditText) {
-
-        editText.isFocusableInTouchMode = true
-        editText.isFocusable = true
-        editText.requestFocus()
-
-        // Открыть клавиатуру
-        showKeyboard(editText)
-
-        createMenu()
-
-    }
-
-    //Выключение режима редактирования
-    private fun disableEditing(editText: EditText) {
-        editText.isFocusable = false
-        editText.isFocusableInTouchMode = false
-        editText.clearFocus()
-
-        // Скрыть клавиатуру
-        hideKeyboard(editText)
-
-
-        menu.clear()
-    }
-
-    //метод получения индекса первого найденого тескта поиска
-    private fun findFirstMatchPosition(text: String, query: String?): Int {
-        if (query.isNullOrEmpty()) return -1
-        return text.lowercase(Locale.getDefault())
-            .indexOf(query.lowercase(Locale.getDefault()))
-    }
-
-    //Метод прокрутки в editText до нужного текста
-    private fun scrollToPosition(editText: EditText, position: Int) {
-        editText.post {
-            editText.viewTreeObserver.addOnGlobalLayoutListener(
-                object : ViewTreeObserver.OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        editText.layout?.let { layout ->
-                            if (position < 0 || position >= layout.text.length) return
-                            val line = layout.getLineForOffset(position)
-                            // Получаем верхнюю границу строки
-                            val targetY = layout.getLineTop(line)
-
-                            // Текущая высота видимой области
-                            val visibleHeight = editText.height
-
-                            // Если текст короче видимой области — не прокручиваем
-                            if (layout.height <= visibleHeight) return
-
-                            // Прокручиваем так, чтобы строка была в центре видимой области
-                            val scrollY = targetY - visibleHeight / 2
-
-                            // Ограничиваем прокрутку в пределах текста
-                            val maxScroll = layout.height - visibleHeight
-                            val finalScroll = scrollY.coerceIn(0, maxScroll)
-
-                            editText.scrollTo(0, finalScroll)
-                        }
-                        editText.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    }
-                }
-            )
-        }
-    }
-
-    //Открытие клавитуры
-    private fun showKeyboard(view: View){
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT)
-    }
-
-    //Закрытие клавиатуры
-    private fun hideKeyboard(view: View){
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken,0)
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun setupEditTextGestures() {
-        binding.apply {
-            gestureDetector = GestureDetector(
-                this@NoteActivity,
-                object : GestureDetector.SimpleOnGestureListener()
+//        Обработчик EditText Title
+        binding.ETTitle.setOnTouchListener {v,event ->
+            when(event.action)
+            {
+                MotionEvent.ACTION_DOWN ->
                 {
-                    override fun onDown(e: MotionEvent): Boolean {
-
-                        return true
-                    }
-
-                    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                        enableEditing(ETContent)
-                        val offset = ETContent.getOffsetForPosition(e.x,e.y)
-                        ETContent.setSelection(offset)
-                        Log.d("gestureDetector", "${e.x}")
-                        return true
-                    }
-
-
-                    override fun onScroll(
-                        e1: MotionEvent?,
-                        e2: MotionEvent,
-                        distanceX: Float,
-                        distanceY: Float
-                    ): Boolean {
-                        if(isSelectingText)
-                        {
-                            Log.d("onScroll", "isSelectingText")
-                            val offset = ETContent.getOffsetForPosition(e2.x, e2.y)
-                            ETContent.setSelection(ETContent.selectionStart, offset)
-
-                            return true
-                        }
-                        else
-                        {
-                            // Текущая позиция прокрутки
-                            val currentScrollY = ETContent.scrollY
-
-                            // Новая позиция прокрутки
-                            val newScrollY = currentScrollY + distanceY.toInt()
-
-                            // Вычисляем максимальную прокрутку
-                            val maxScrollY = ETContent.layout.height - ETContent.height
-
-                            // Ограничиваем новую позицию прокрутки
-                            val clampedScrollY = newScrollY.coerceIn(0, maxScrollY)
-
-                            // Прокручиваем до новой позиции
-                            ETContent.scrollTo(ETContent.scrollX, clampedScrollY)
-
-                            // Логируем для отладки
-                            Log.d("onScroll", "Current: $currentScrollY, New: $newScrollY, Clamped: $clampedScrollY, Max: $maxScrollY")
-
-
-                            return true
-                        }
-                    }
-
-                    override fun onLongPress(e: MotionEvent) {
-                        val offset = ETContent.getOffsetForPosition(e.x,e.y)
-                        ETContent.setSelection(offset)
-                        isSelectingText = true // Флаг для отслеживания выделения
-                        Log.d("onLongPress", "start long press")
-                    }
-
+                    // Запоминаем начальные координаты касания
+                    startX = event.x
+                    startY = event.y
+                    isScrolling = false // Сбрасываем флаг прокрутки
                 }
-            )
-        }
 
+                MotionEvent.ACTION_UP ->
+                {
 
-        val touchListener = View.OnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_UP -> {
-                    isSelectingText = false // Завершаем выделение
-
+                    // Переключаем в режим редактирования
+                    enableEditing(binding.ETTitle)
+                    // Устанавливаем курсор в место касания
+                    val offset = binding.ETTitle.getOffsetForPosition(event.x, event.y)
+                    binding.ETTitle.setSelection(offset)
+                    // Показываем клавиатуру
+                    showKeyboard(binding.ETTitle)
                 }
             }
-            // Передаем событие в GestureDetector
-            gestureDetector.onTouchEvent(event)
-
-            // Возвращаем false, чтобы не перехватывать события
-//            false
+            false
         }
 
-//        binding.ETTitle.setOnTouchListener(touchListener)
-        binding.ETContent.setOnTouchListener(touchListener)
+        //Обработчик EditText Content
+        binding.ETContent.setOnTouchListener { v, event ->
+            when(event.action)
+            {
+                MotionEvent.ACTION_DOWN ->
+                {
+                    // Запоминаем начальные координаты касания
+                    startX = event.x
+                    startY = event.y
+                    isScrolling = false // Сбрасываем флаг прокрутки
+                }
+                MotionEvent.ACTION_MOVE ->
+                {
+                    if(abs(event.x - startX) > 10 || abs(event.y - startY)>10)
+                    {
+                        isScrolling = true
+                    }
+                }
+                MotionEvent.ACTION_UP ->
+                {
+                    if(!isScrolling)
+                    {
+                        // Переключаем в режим редактирования
+                        enableEditing(binding.ETContent)
+                        // Устанавливаем курсор в место касания
+                        val offset = binding.ETContent.getOffsetForPosition(event.x, event.y)
+                        binding.ETContent.setSelection(offset)
+                        // Показываем клавиатуру
+                        showKeyboard(binding.ETContent)
+                    }
+                }
+            }
+            false
+        }
+
     }
 
 
+
+//    //Создание меню
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        Log.d("NoteActivity","onCreateOptionsMenu")
+//        if (currentFocus is EditText )
+//            menuInflater.inflate(R.menu.toolbar_notes, menu)
+//        this.menu = menu!!
+//        return true
+//    }
+//
+//    private fun createMenu() {
+//        Log.d("NoteActivity","createMenu")
+//        menu.clear()
+//        invalidateOptionsMenu()
+//    }
+//
+//
+//    //Обработка toolbar кнопок
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            android.R.id.home -> {
+//                // Обработка нажатия на кнопку "Назад"
+//
+//                setResult(resultCode,intent_out)
+//                finish()
+//                true
+//            }
+//            else -> true
+//        }
+//
+//        return super.onOptionsItemSelected(item)
+//    }
+//
+//    //Включение режима редактирования
+//    private fun enableEditing(editText: EditText) {
+//        Log.d("NoteActivity","enableEditing text: ${editText.text}")
+//
+//
+//        editText.isFocusableInTouchMode = true
+//        editText.isFocusable = true
+//        editText.isCursorVisible = true
+//        editText.requestFocus()
+//
+//
+//        // Открыть клавиатуру
+//        showKeyboard(editText)
+//        createMenu()
+//    }
+//
+//    //Выключение режима редактирования
+//    private fun disableEditing(editText: EditText) {
+//        Log.d("NoteActivity","disableEditing text: ${editText.text}")
+//        editText.isFocusable = false
+//        editText.isFocusableInTouchMode = false
+//        editText.isCursorVisible = false
+//        editText.clearFocus()
+//
+//        // Скрыть клавиатуру
+//        hideKeyboard(editText)
+//
+//        menu.clear()
+//    }
+//
+//    //метод получения индекса первого найденого тескта поиска
+//    private fun findFirstMatchPosition(text: String, query: String?): Int {
+//        Log.d("NoteActivity","findFirstMatchPosition")
+//        if (query.isNullOrEmpty()) return -1
+//        return text.lowercase(Locale.getDefault())
+//            .indexOf(query.lowercase(Locale.getDefault()))
+//    }
+//
+//    //Метод прокрутки в editText до нужного текста
+//    private fun scrollToPosition(editText: EditText, position: Int) {
+//        Log.d("NoteActivity","scrollToPosition")
+//        editText.post {
+//            editText.viewTreeObserver.addOnGlobalLayoutListener(
+//                object : ViewTreeObserver.OnGlobalLayoutListener {
+//                    override fun onGlobalLayout() {
+//                        editText.layout?.let { layout ->
+//                            if (position < 0 || position >= layout.text.length) return
+//                            val line = layout.getLineForOffset(position)
+//                            // Получаем верхнюю границу строки
+//                            val targetY = layout.getLineTop(line)
+//
+//                            // Текущая высота видимой области
+//                            val visibleHeight = editText.height
+//
+//                            // Если текст короче видимой области — не прокручиваем
+//                            if (layout.height <= visibleHeight) return
+//
+//                            // Прокручиваем так, чтобы строка была в центре видимой области
+//                            val scrollY = targetY - visibleHeight / 2
+//
+//                            // Ограничиваем прокрутку в пределах текста
+//                            val maxScroll = layout.height - visibleHeight
+//                            val finalScroll = scrollY.coerceIn(0, maxScroll)
+//
+//                            editText.scrollTo(0, finalScroll)
+//                        }
+//                        editText.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//                    }
+//                }
+//            )
+//        }
+//    }
+//
+//    //Открытие клавитуры
+//    private fun showKeyboard(view: View){
+//        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//        imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT)
+//    }
+//
+//    //Закрытие клавиатуры
+//    private fun hideKeyboard(view: View){
+//        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//        imm.hideSoftInputFromWindow(view.windowToken,0)
+//    }
+
+    override fun onBackPressed() {
+
+        val currentFocus = currentFocus
+        if (currentFocus != null)
+        {
+            disableEditing(binding.ETTitle)
+            disableEditing(binding.ETContent)
+        }
+        else
+        {
+            setResult(resultCode,intent_out)
+            finish()
+            super.onBackPressed()
+        }
+
+    }
 
 
 }
