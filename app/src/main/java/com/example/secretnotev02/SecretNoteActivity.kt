@@ -108,7 +108,7 @@ class SecretNoteActivity : CustomNoteActivity() {
 
         }
 
-
+        //Обработчик нажатия кнопки check_mark (Ok)
         binding.toolbarNote.setOnMenuItemClickListener {item ->
             when(item.itemId)
             {

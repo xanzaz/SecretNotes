@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import com.example.secretnotev02.DB.Note
 import com.example.secretnotev02.R
 import java.util.Locale
 
@@ -38,7 +39,8 @@ open class CustomNoteActivity: BaseActivity()
         return when (item.itemId) {
             android.R.id.home -> {
                 // Обработка нажатия на кнопку "Назад"
-
+                Log.d("CustomNoteActivity","resultCode = $resultCode")
+                Log.d("CustomNoteActivity","intent_out = ${intent_out.getSerializableExtra("note") as Note?}")
                 setResult(resultCode, intent_out)
                 finish()
                 true

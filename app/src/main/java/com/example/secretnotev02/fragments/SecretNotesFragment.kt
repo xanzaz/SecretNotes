@@ -19,6 +19,7 @@ import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.MainActivity
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.appcompat.widget.SearchView
 import com.example.secretnotev02.R
 import com.example.secretnotev02.adapters.NoteAdapter
@@ -66,6 +67,8 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
         //обработка полученных данных из активити
         addLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult())
         {
+//            Log.d("SecretNotesFragment", "addLauncher: \nnote = ${it.data?.getSerializableExtra("note") as Note},\n position_out = ${it.data?.getIntExtra("position",-2)}")
+            Log.d("SecretNotesFragment", "addLauncher: code = ${it.resultCode}")
             // создание заметки
             if(it.resultCode == RESULT_OK) {
 //                adapter.addNote((it.data?.getSerializableExtra("note") as Note).toNoteTable())
@@ -102,8 +105,9 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
             ABAddSecretNote.setOnClickListener {
                 selectedItems.clear()
                 adapter.clearAllActived()
-                changeMenu()
-                addLauncher.launch(Intent(view.context,SecretNoteActivity::class.java))
+
+                addLauncher.launch(Intent(requireContext(),SecretNoteActivity::class.java))
+//                changeMenu()
             }
 
             //Обработчик поиска
