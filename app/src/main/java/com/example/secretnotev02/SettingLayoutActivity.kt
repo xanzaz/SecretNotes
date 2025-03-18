@@ -29,6 +29,7 @@ class SettingLayoutActivity : BaseActivity() {
 
 
 
+
     }
     fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()

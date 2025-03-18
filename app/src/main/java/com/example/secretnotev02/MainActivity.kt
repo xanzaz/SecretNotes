@@ -40,9 +40,11 @@ class MainActivity : BaseActivity() {
         //Первый запуск
         val pref = Pref(this)
         if (pref.getValue("isFirst","false")=="false") {
+            pref.saveValue("AES_position",1)
             pref.saveValue("AES_Nb",4)
-            pref.saveValue("AES_Nk",4)
-            pref.saveValue("AES_Nr",10)
+            pref.saveValue("AES_Nk",6)
+            pref.saveValue("AES_Nr",12)
+            pref.saveValue("isFirst","true")
         }
 
         //нижнее меню
