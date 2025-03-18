@@ -32,9 +32,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.commit
+import com.example.secretnotes.scripts.AES.AES
 import com.example.secretnotes.scripts.Pref
+import com.example.secretnotes.scripts.sha256
 import com.example.secretnotes.scripts.sha512
 import com.example.secretnotev02.DB.DbHelper
+import com.example.secretnotev02.DB.SecretNote
 import com.example.secretnotev02.MainActivity
 import com.example.secretnotev02.R
 import com.example.secretnotev02.SettingLayoutActivity
@@ -303,16 +306,21 @@ class SettingListFragment : Fragment() {
                     if(hashpass == sha512(pass))
                     {
                         Toast.makeText(requireContext(), "yes", Toast.LENGTH_SHORT).show()
+                        //создание нужных переменных для смены версии шифрования
                         val newPosition = binding.spinnerAes.selectedItemPosition
                         var Nb: Int? = null
                         var Nk: Int? = null
                         var Nr: Int? = null
+                        val db = DbHelper(requireContext(),null)
+
+                        // заполняем коэффициенты шифрования от выбраной версии
                         when(newPosition)
                         {
                             0-> { Nb = 4; Nk = 4; Nr = 10 }
                             1-> { Nb = 4; Nk = 6; Nr = 12 }
                             2-> { Nb = 4; Nk = 8; Nr = 14 }
                         }
+                        //сохраняем коэффициенты шифрования в памяти устройства
                         if (Nb != null && Nk != null && Nr != null  )
                         {
                             pref.saveValue("AES_position",newPosition)
@@ -320,6 +328,28 @@ class SettingListFragment : Fragment() {
                             pref.saveValue("AES_Nk",Nk)
                             pref.saveValue("AES_Nr",Nr)
                         }
+
+                        // процесс перешифровки секретных заметок
+                        val oldAES = AppData.AES!!
+                        val newAES = AES(sha256(pass),requireContext())
+                        // получение всех заметок и перекодируем с новым паролем
+                        val secretNotes = db.allSecretNotes().map {
+                            SecretNote(
+                                id = it.id,
+                                title = newAES.encodingText(oldAES.decryptText(it.title)),
+                                content = newAES.encodingText(oldAES.decryptText(it.content)),
+                                date = newAES.encodingText(oldAES.decryptText(it.date))
+                            )
+                        }
+                        for (note in secretNotes)
+                        {
+                            db.updateSecretNotes(note)
+                        }
+                        AppData.AES = newAES
+
+                        Toast.makeText(requireContext(), "Версия шифрования изменена на $item_name", Toast.LENGTH_SHORT).show()
+
+
 
 
                         position_item_spener = newPosition
