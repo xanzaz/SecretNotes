@@ -237,14 +237,35 @@ class SettingListFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun exportAllSecretNotes()
     {
-        val db = DbHelper(settingActivity,null)
-        val note_list = db.allSecretNotes().map { it.toNote() }
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_style_dialog_input_name_file,null)
+        val btn_export = dialogView.findViewById<Button>(R.id.Btn_export_Dialog)
+        val btn_back = dialogView.findViewById<Button>(R.id.Btn_back_dialog)
 
-        val currentDateTime = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
-        val formattedDateTime = currentDateTime.format(formatter)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
 
-        exportSecretNotes(settingActivity,"AllNotes $formattedDateTime",note_list)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        btn_export.setOnClickListener {
+            val name_file = dialogView.findViewById<EditText>(R.id.ET_NameFile_Dialog).text.toString().trim()
+            val db = DbHelper(settingActivity,null)
+            val note_list = db.allSecretNotes().map { it.toNote() }
+
+//            val currentDateTime = LocalDateTime.now()
+//            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+//            val formattedDateTime = currentDateTime.format(formatter)
+
+            exportSecretNotes(settingActivity,name_file,note_list)
+            dialog.dismiss()
+        }
+        btn_back.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
