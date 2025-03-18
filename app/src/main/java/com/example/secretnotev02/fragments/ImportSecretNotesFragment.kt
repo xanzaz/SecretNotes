@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.example.secretnotes.scripts.AES.AES
 import com.example.secretnotes.scripts.sha256
@@ -49,6 +50,11 @@ class ImportSecretNotesFragment : Fragment() {
 
         settingActivity = requireActivity() as SettingLayoutActivity
 
+        //Код выпадающего списка
+        val adapter_spiner = ArrayAdapter.createFromResource(requireContext(),R.array.AES_version, android.R.layout.simple_spinner_item)
+        adapter_spiner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerAes2.adapter = adapter_spiner
+
         binding.BtnBackImportSecretNotes.setOnClickListener {
             if(binding.ETNameFileImportSecretNotes.text.isNotEmpty())  ActivityCounter.activityStopped()
             settingActivity.loadFragment(SettingListFragment())
@@ -70,8 +76,19 @@ class ImportSecretNotesFragment : Fragment() {
                 }
                 else
                 {
+                    var Nb=4; var Nk=4; var Nr=10
+
                     val pass = ETPassImportSecretNotes.text.toString().trim()
-                    val aes = AES(sha256(pass),requireContext())
+
+                    val position_spiner = spinnerAes2.selectedItemPosition
+                    when(position_spiner)
+                    {
+                        0-> { Nb = 4; Nk = 4; Nr = 10 }
+                        1-> { Nb = 4; Nk = 6; Nr = 12 }
+                        2-> { Nb = 4; Nk = 8; Nr = 14 }
+                    }
+
+                    val aes = AES(sha256(pass),Nb,Nk,Nr)
                     val strJson = aes.decryptText(fileData as ByteArray)
 
                     val note_list = Json.decodeFromString<List<NoteExport>>(strJson)
