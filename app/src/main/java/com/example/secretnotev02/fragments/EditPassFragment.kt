@@ -88,7 +88,7 @@ class EditPassFragment : Fragment() {
                                     SecretNote(
                                         id = it.id,
                                         title = AppData.AES!!.reEncodingText(it.title,hashNewPassForAES),
-                                        content  = AppData.AES!!.reEncodingText(it.title,hashNewPassForAES),
+                                        content  = AppData.AES!!.reEncodingText(it.content,hashNewPassForAES),
                                         date = AppData.AES!!.reEncodingText(it.date,hashNewPassForAES)
                                     )
                                 }
