@@ -5,23 +5,33 @@ import com.example.secretnotes.scripts.Pref
 import java.nio.charset.Charset
 import android.util.Log
 
-class AES(key: String, context: Context) {
+class AES {
+    var Nb: Int
+    var Nk: Int
+    var Nr: Int
+    var Keys: List<List<UByte>>
 
-    val pref = Pref(context)
+
+    constructor(key: String, context: Context)
+    {
+        val pref = Pref(context)
+        Nb = pref.getValue("AES_Nb",4)  // Количество столбцов составляющие State
+        Nk = pref.getValue("AES_Nk",6)  // Количество столбцов ключа шифрования
+        Nr = pref.getValue("AES_Nr",12) // Количество итераций шифрования
+        Keys = transformTextToArrKey(key)
+    }
 
 
-    var Nb = pref.getValue("AES_Nb",4)  // Количество столбцов составляющие State
-    var Nk = pref.getValue("AES_Nk",6)  // Количество столбцов ключа шифрования
-    var Nr = pref.getValue("AES_Nr",12) // Количество итераций шифрования
 
-//    constructor(key: String, context: Context, nb: Int,nk: Int,nr: Int) : this(key,context)
-//    {
-//        Nb = nb
-//        Nk = nk
-//        Nr = nr
-//    }
+    constructor(key: String,nb: Int,nk: Int,nr: Int)
+    {
+        Nb = nb
+        Nk = nk
+        Nr = nr
+        Keys = transformTextToArrKey(key)
+    }
 
-    var Keys = transformTextToArrKey(key)
+
 
 
 
