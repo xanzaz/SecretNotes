@@ -184,16 +184,30 @@ class SettingListFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                Log.d("SettingListFragment","onItemSelectedListener position: ${position}")
-                if(isUserInteractionSpinner)
+                val selectedItem = parent?.getItemAtPosition(position).toString()
+                if(AppData.AES == null && isUserInteractionSpinner)
                 {
-                    val selectedItem = parent?.getItemAtPosition(position).toString()
-                    // Выполните действия при выборе элемента
-                    Toast.makeText(requireContext(), "Выбрано: $selectedItem", Toast.LENGTH_SHORT).show()
-                    showConfirmationAesDialog(selectedItem)
-                    isUserInteractionSpinner = false
+                    val fragment = LoginFragment().apply {
+                        arguments = bundleOf(
+                            "calling_function" to "SettingListFragment"
+                        )
+                    }
+                    temp_fun = { showConfirmationAesDialog(selectedItem) }
+                    parentFragmentManager.commit {
+                        replace(R.id.FrameSettingLayout,fragment)
+                        addToBackStack(null)
+                    }
                 }
-
+                else
+                {
+                    Log.d("SettingListFragment","onItemSelectedListener position: ${position}")
+                    if(isUserInteractionSpinner)
+                    {
+                        // Выполните действия при выборе элемента
+                        showConfirmationAesDialog(selectedItem)
+                    }
+                }
+                isUserInteractionSpinner = false
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
