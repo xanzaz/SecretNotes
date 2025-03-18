@@ -71,7 +71,7 @@ class ImportSecretNotesFragment : Fragment() {
                 else
                 {
                     val pass = ETPassImportSecretNotes.text.toString().trim()
-                    val aes = AES(sha256(pass))
+                    val aes = AES(sha256(pass),requireContext())
                     val strJson = aes.decryptText(fileData as ByteArray)
 
                     val note_list = Json.decodeFromString<List<NoteExport>>(strJson)

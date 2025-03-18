@@ -52,7 +52,7 @@ class RegistrationFragment : Fragment() {
                         val hashPass = sha512(pass)
                         pref.saveValue("hashPass",hashPass)
 
-                        AppData.AES = AES(sha256(pass))
+                        AppData.AES = AES(sha256(pass),requireContext())
                         AppData.isLogin = true
                         mainActivity.loadFragment(SecretNotesFragment())
                     }

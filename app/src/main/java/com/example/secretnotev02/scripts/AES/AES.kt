@@ -1,13 +1,30 @@
 package com.example.secretnotes.scripts.AES
 
+import android.content.Context
+import com.example.secretnotes.scripts.Pref
 import java.nio.charset.Charset
+import android.util.Log
 
-class AES(key: String) {
+class AES(key: String, context: Context) {
+
+    val pref = Pref(context)
+
+
+    var Nb = pref.getValue("AES_Nb",4)  // Количество столбцов составляющие State
+    var Nk = pref.getValue("AES_Nk",6)  // Количество столбцов ключа шифрования
+    var Nr = pref.getValue("AES_Nr",12) // Количество итераций шифрования
+
+//    constructor(key: String, context: Context, nb: Int,nk: Int,nr: Int) : this(key,context)
+//    {
+//        Nb = nb
+//        Nk = nk
+//        Nr = nr
+//    }
 
     var Keys = transformTextToArrKey(key)
-//    val Nb = 4  // Количество столбцов составляющие State
-//    val Nk = 6  // Количество столбцов ключа шифрования
-//    val Nr = 12 // Количество итераций шифрования
+
+
+
 
     //Преобрабование текста в массив байтов
     fun String.toUByteArray(): List<UByte> {
@@ -35,7 +52,7 @@ class AES(key: String) {
 
         for (chunk in arrChunks)
         {
-            states.add(State(chunk))
+            states.add(State(chunk,Nb=Nb,Nr=Nr))
         }
 
         return states
@@ -139,7 +156,7 @@ class AES(key: String) {
 
         for (chunk in arrChunks)
         {
-            states.add(State(chunk))
+            states.add(State(chunk,Nb=Nb,Nr=Nr))
         }
 
         for(state in states)

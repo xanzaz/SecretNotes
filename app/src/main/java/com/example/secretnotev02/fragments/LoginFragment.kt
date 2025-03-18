@@ -59,7 +59,7 @@ class LoginFragment : Fragment() {
                     if(hashPass == prefHashPass)
                     {
                         //Создание обьекта для шифрования
-                        AppData.AES = AES(sha256(pass))
+                        AppData.AES = AES(sha256(pass),requireContext())
                         AppData.isLogin = true
 
                         //проверка от куда был вызван фрагмент

@@ -1,8 +1,8 @@
 package com.example.secretnotes.scripts.AES
 
-val Nb = 4  // Количество столбцов составляющие State
-val Nk = 6  // Количество столбцов ключа шифрования
-val Nr = 12 // Количество итераций шифрования
+//val Nb = 4  // Количество столбцов составляющие State
+//val Nk = 6  // Количество столбцов ключа шифрования
+//val Nr = 12 // Количество итераций шифрования
 
 val SBox = listOf(
     listOf<UByte>(0x63u, 0x7Cu, 0x77u, 0x7Bu, 0xF2u, 0x6Bu, 0x6Fu, 0xC5u, 0x30u, 0x01u, 0x67u, 0x2Bu, 0xFEu, 0xD7u, 0xABu, 0x76u),

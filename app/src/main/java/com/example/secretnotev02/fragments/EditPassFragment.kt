@@ -81,7 +81,7 @@ class EditPassFragment : Fragment() {
 
                                 // Создаем объек шифровок если он не был создан
                                 if (AppData.AES == null)
-                                    AppData.AES = AES(sha256(oldPass))
+                                    AppData.AES = AES(sha256(oldPass),requireContext())
 
                                 // получение всех заметок и перекодируем с новым паролем
                                 val secretNotes = db.allSecretNotes().map {

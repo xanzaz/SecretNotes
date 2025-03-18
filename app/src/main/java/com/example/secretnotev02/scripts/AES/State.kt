@@ -2,7 +2,11 @@ package com.example.secretnotes.scripts.AES
 
 import java.nio.charset.Charset
 
-class State(stateList: List<GF>) {
+class State(
+    stateList: List<GF>,
+    val Nb: Int,
+    val Nr: Int
+    ) {
     var state: MutableList<MutableList<GF>> = MutableList(4){ MutableList<GF>(4){  GF(32u) } }
 
     init
