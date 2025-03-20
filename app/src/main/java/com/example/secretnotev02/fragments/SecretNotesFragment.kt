@@ -19,7 +19,12 @@ import com.example.secretnotev02.DB.NoteTable
 import com.example.secretnotev02.MainActivity
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import com.example.secretnotev02.R
 import com.example.secretnotev02.adapters.NoteAdapter
@@ -271,7 +276,28 @@ class SecretNotesFragment : Fragment(), NoteAdapter.OnItemInteractionListener{
 
     private fun exportNote()
     {
-        exportSecretNotes(mainActivity,"Notes",selectedItems.map { it.toNote() }.toList())
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_style_dialog_input_name_file,null)
+        val btn_export = dialogView.findViewById<Button>(R.id.Btn_export_Dialog)
+        val btn_back = dialogView.findViewById<Button>(R.id.Btn_back_dialog)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        btn_export.setOnClickListener {
+            val name_file = dialogView.findViewById<EditText>(R.id.ET_NameFile_Dialog).text.toString().trim()
+
+            exportSecretNotes(mainActivity,name_file,selectedItems.map { it.toNote() }.toList())
+            dialog.dismiss()
+        }
+        btn_back.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+//        exportSecretNotes(mainActivity,"Notes",selectedItems.map { it.toNote() }.toList())
     }
 
 
