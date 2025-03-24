@@ -48,7 +48,7 @@ fun exportSecretNotes(context: Context, fileName: String, notes: List<Note>): Ur
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName) // Имя файла
             put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream") // MIME-тип
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/MyApp") // Путь
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/SecretNote") // Путь
         }
 
         // Получаем ContentResolver
