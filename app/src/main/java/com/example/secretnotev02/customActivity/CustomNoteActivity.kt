@@ -145,10 +145,8 @@ open class CustomNoteActivity: BaseActivity()
                             // Ограничиваем прокрутку в пределах текста
                             val maxScroll = layout.height - visibleHeight
                             val finalScroll = scrollY.coerceIn(0, maxScroll)
-                            Toast.makeText(this@CustomNoteActivity,
-                                "position: $position; line: $line; targetY: $targetY; visibleHeight: $visibleHeight; lh ${layout.height}; fS: $finalScroll",Toast.LENGTH_SHORT).show()
 
-                            editText.postDelayed({editText.scrollY = finalScroll},50L)
+                            editText.scrollY = finalScroll
 
 
 
