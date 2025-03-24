@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.Toast
 import com.example.secretnotev02.DB.Note
 import com.example.secretnotev02.R
 import java.util.Locale
@@ -109,11 +110,20 @@ open class CustomNoteActivity: BaseActivity()
                             // Прокручиваем так, чтобы строка была в центре видимой области
                             val scrollY = targetY - visibleHeight / 2
 
+                            Log.d("CustomNoteActivity","scrollToPosition scrollY $scrollY ")
+
                             // Ограничиваем прокрутку в пределах текста
                             val maxScroll = layout.height - visibleHeight
                             val finalScroll = scrollY.coerceIn(0, maxScroll)
+                            Toast.makeText(this@CustomNoteActivity,
+                                "position: $position; line: $line; targetY: $targetY; visibleHeight: $visibleHeight; lh ${layout.height}; fS: $finalScroll",Toast.LENGTH_SHORT).show()
 
-                            editText.scrollTo(0, finalScroll)
+                            editText.postDelayed({editText.scrollY = finalScroll},50L)
+
+
+
+
+
                         }
                         editText.viewTreeObserver.removeOnGlobalLayoutListener(this)
                     }
