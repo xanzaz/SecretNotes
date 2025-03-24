@@ -2,6 +2,9 @@ package com.example.secretnotev02.customActivity
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
+import android.text.InputType.TYPE_CLASS_TEXT
+import android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -10,6 +13,10 @@ import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.marginBottom
+import androidx.core.view.setPadding
 import com.example.secretnotev02.DB.Note
 import com.example.secretnotev02.R
 import java.util.Locale
@@ -53,9 +60,11 @@ open class CustomNoteActivity: BaseActivity()
 
     //Включение режима редактирования
     fun enableEditing(editText: EditText) {
-        Log.d("CustomNoteActivity","enableEditing text: ${editText.text}")
+//        Log.d("CustomNoteActivity","enableEditing text: ${editText.text}")
 
 
+        val input_type = editText.inputType - TYPE_CLASS_TEXT
+        Log.d("CustomNoteActivity", "input_type: ${input_type} ")
         editText.isFocusableInTouchMode = true
         editText.isFocusable = true
         editText.isCursorVisible = true
@@ -65,10 +74,28 @@ open class CustomNoteActivity: BaseActivity()
         // Открыть клавиатуру
         showKeyboard(editText)
         createMenu()
+        
+        if (input_type ==  TYPE_TEXT_FLAG_MULTI_LINE){
+            Log.d("CustomNoteActivity", "Часть кода для изменения padding")
+            val rootView = findViewById<View>(android.R.id.content)
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+                val keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                val navigationBarHeight =
+                    insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+                if (keyboardHeight > 0) {
+                    Log.d("CustomNoteActivity", "Keyboard Height: ${keyboardHeight} px")
+
+                    editText.setPadding(0, 0, 0, keyboardHeight - navigationBarHeight)
+                }
+                insets
+            }
+        }
     }
 
     //Выключение режима редактирования
     fun disableEditing(editText: EditText) {
+
         Log.d("CustomNoteActivity","disableEditing text: ${editText.text}")
         editText.isFocusable = false
         editText.isFocusableInTouchMode = false
@@ -77,6 +104,9 @@ open class CustomNoteActivity: BaseActivity()
 
         // Скрыть клавиатуру
         hideKeyboard(editText)
+        editText.setPadding(0,0,0,0)
+
+
 
         menu.clear()
     }
