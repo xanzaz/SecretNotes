@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -31,6 +32,25 @@ class SecretNoteActivity : CustomNoteActivity() {
     private var isScrolling = false // Флаг для отслеживания прокрутки
     private var startX = 0f // Начальная координата X касания
     private var startY = 0f // Начальная координата Y касания
+
+    @SuppressLint("CutPasteId")
+    override fun onStart() {
+        super.onStart()
+        val rootView = findViewById<View>(android.R.id.content)
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+
+            val keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val navigationBarHeight =
+                insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            Log.d("CustomNoteActivity", "hK=${keyboardHeight - navigationBarHeight}")
+            if (keyboardHeight - navigationBarHeight > 100)
+                binding.ETContent.setPadding(0, 0, 0, keyboardHeight - navigationBarHeight)
+            else
+                binding.ETContent.setPadding(0, 0, 0, 0)
+
+            insets
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)

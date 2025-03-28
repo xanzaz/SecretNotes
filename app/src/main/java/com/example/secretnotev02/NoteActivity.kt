@@ -2,11 +2,14 @@ package com.example.secretnotev02
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -34,6 +37,24 @@ class NoteActivity : CustomNoteActivity() {
     private var startX = 0f // Начальная координата X касания
     private var startY = 0f // Начальная координата Y касания
 
+
+    @SuppressLint("CutPasteId")
+    override fun onStart() {
+        super.onStart()
+        val rootView = findViewById<View>(android.R.id.content)
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+
+            val keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            Log.d("CustomNoteActivity", "hK=${keyboardHeight - navigationBarHeight}")
+            if (keyboardHeight-navigationBarHeight > 100)
+                binding.ETContent.setPadding(0, 0, 0, keyboardHeight - navigationBarHeight)
+            else
+                binding.ETContent.setPadding(0, 0, 0, 0)
+
+            insets
+        }
+    }
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -219,6 +240,8 @@ class NoteActivity : CustomNoteActivity() {
                         enableEditing(binding.ETContent)
                         // Устанавливаем курсор в место касания
                         val offset = binding.ETContent.getOffsetForPosition(event.x, event.y)
+
+
                         binding.ETContent.setSelection(offset)
                         // Показываем клавиатуру
                         showKeyboard(binding.ETContent)
@@ -365,6 +388,8 @@ class NoteActivity : CustomNoteActivity() {
         }
 
     }
+
+
 
 
 }

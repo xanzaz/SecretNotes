@@ -34,17 +34,19 @@
         android:layout_marginBottom="16dp"
         android:background="@null"
         android:ems="10"
-        android:gravity="start|top"
-        android:hint="Содержание"
-
         android:focusable="false"
         android:focusableInTouchMode="false"
+
+        android:gravity="start|top"
+        android:hint="Содержание"
 
         android:inputType="textMultiLine"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/ET_title"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/ET_title"
-        app:layout_constraintTop_toBottomOf="@+id/TV_date" />
+        app:layout_constraintTop_toBottomOf="@+id/TV_date"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/TV_date"

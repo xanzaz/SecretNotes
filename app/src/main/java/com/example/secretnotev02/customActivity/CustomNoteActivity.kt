@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
@@ -27,6 +28,8 @@ open class CustomNoteActivity: BaseActivity()
     private lateinit var menu: Menu
     lateinit var intent_out: Intent
     var resultCode: Int = RESULT_CANCELED
+
+
 
     //Создание меню
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -58,13 +61,12 @@ open class CustomNoteActivity: BaseActivity()
         }
     }
 
+
     //Включение режима редактирования
     fun enableEditing(editText: EditText) {
 //        Log.d("CustomNoteActivity","enableEditing text: ${editText.text}")
 
 
-        val input_type = editText.inputType - TYPE_CLASS_TEXT
-        Log.d("CustomNoteActivity", "input_type: ${input_type} ")
         editText.isFocusableInTouchMode = true
         editText.isFocusable = true
         editText.isCursorVisible = true
@@ -74,23 +76,7 @@ open class CustomNoteActivity: BaseActivity()
         // Открыть клавиатуру
         showKeyboard(editText)
         createMenu()
-        
-        if (input_type ==  TYPE_TEXT_FLAG_MULTI_LINE){
-            Log.d("CustomNoteActivity", "Часть кода для изменения padding")
-            val rootView = findViewById<View>(android.R.id.content)
-            ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
-                val keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-                val navigationBarHeight =
-                    insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
 
-                if (keyboardHeight > 0) {
-                    Log.d("CustomNoteActivity", "Keyboard Height: ${keyboardHeight} px")
-
-                    editText.setPadding(0, 0, 0, keyboardHeight - navigationBarHeight)
-                }
-                insets
-            }
-        }
     }
 
     //Выключение режима редактирования
@@ -104,7 +90,7 @@ open class CustomNoteActivity: BaseActivity()
 
         // Скрыть клавиатуру
         hideKeyboard(editText)
-        editText.setPadding(0,0,0,0)
+//        editText.setPadding(0,0,0,0)
 
 
 
@@ -120,7 +106,7 @@ open class CustomNoteActivity: BaseActivity()
 
     //Метод прокрутки в editText до нужного текста
     fun scrollToPosition(editText: EditText, position: Int) {
-        Log.d("CustomNoteActivity","scrollToPosition")
+        Log.d("CustomNoteActivity","scrollToPosition, position=$position")
         editText.post {
             editText.viewTreeObserver.addOnGlobalLayoutListener(
                 object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -146,7 +132,9 @@ open class CustomNoteActivity: BaseActivity()
                             val maxScroll = layout.height - visibleHeight
                             val finalScroll = scrollY.coerceIn(0, maxScroll)
 
-                            editText.scrollY = finalScroll
+                            editText.postDelayed({editText.scrollY = finalScroll},50)
+//                            editText.scrollY = finalScroll
+//                            editText.scrollTo(0,finalScroll)
 
 
 
