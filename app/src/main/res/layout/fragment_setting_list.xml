@@ -84,7 +84,7 @@
                 android:layout_width="373dp"
                 android:layout_height="35dp"
                 android:gravity="center_vertical"
-                android:text="Экспортировать все секретные заметки"
+                android:text="Экспортировать все зашифрованные заметки"
                 android:textSize="16sp" />
 
             <TextView

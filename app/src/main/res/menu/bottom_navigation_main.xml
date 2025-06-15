@@ -4,9 +4,9 @@
     <item
         android:id="@+id/nav_main_notes"
         android:icon="@drawable/notes"
-        android:title="Note" />
+        android:title="Заметки" />
     <item
         android:id="@+id/nav_main_secret_notes"
         android:icon="@drawable/secret_notes"
-        android:title="Secret Notes" />
+        android:title="Зашифрованные заметки" />
 </menu>

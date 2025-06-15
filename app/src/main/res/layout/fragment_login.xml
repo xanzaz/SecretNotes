@@ -18,27 +18,52 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/ET_pass"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginTop="36dp"
-        android:ems="10"
-        android:hint="Введите пароль"
-        android:inputType="text"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/TextInputLayout_Login"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="16dp"
+
+
+        app:boxStrokeColor="?attr/colorOnPrimary"
+        app:hintTextColor="?attr/colorOnPrimary"
+
+        app:layout_constraintBottom_toTopOf="@+id/Btn_enter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:passwordToggleEnabled="true">
+
+
+        <EditText
+            android:id="@+id/ET_pass"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:ems="10"
+            android:hint="Введите пароль"
+            android:inputType="textPassword"
+            android:textColor="?attr/colorOnPrimary"
+
+
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
 
     <Button
         android:id="@+id/Btn_enter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="24dp"
         android:text="Войти"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ET_pass" />
+        app:layout_constraintTop_toBottomOf="@+id/TextInputLayout_Login" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

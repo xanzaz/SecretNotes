@@ -89,28 +89,37 @@ class ImportSecretNotesFragment : Fragment() {
                     }
 
                     val aes = AES(sha256(pass),Nb,Nk,Nr)
-                    val strJson = aes.decryptText(fileData as ByteArray)
 
-                    val note_list = Json.decodeFromString<List<NoteExport>>(strJson)
+                    try {
+                        val strJson = aes.decryptText(fileData as ByteArray)
 
-                    val db = DbHelper(view.context,null)
+                        val note_list = Json.decodeFromString<List<NoteExport>>(strJson)
 
-                    if (AppData.AES != null)
-                    {
-                        for (note in note_list)
+                        val db = DbHelper(view.context,null)
+
+                        if (AppData.AES != null)
                         {
+                            for (note in note_list)
+                            {
 
-                        db.addSecretNote(SecretNote(
-                            id = null,
-                            title = AppData.AES!!.encodingText(note.title),
-                            content = AppData.AES!!.encodingText(note.content),
-                            date = AppData.AES!!.encodingText(note.date)
-                        ))
+                                db.addSecretNote(SecretNote(
+                                    id = null,
+                                    title = AppData.AES!!.encodingText(note.title),
+                                    content = AppData.AES!!.encodingText(note.content),
+                                    date = AppData.AES!!.encodingText(note.date)
+                                ))
+                            }
                         }
+                        Toast.makeText(view.context,"Заметки добавлены",Toast.LENGTH_SHORT).show()
+                        if(binding.ETNameFileImportSecretNotes.text.isNotEmpty())  ActivityCounter.activityStopped()
+                        settingActivity.loadFragment(SettingListFragment())
                     }
-                    Toast.makeText(view.context,"Заметки добавлены",Toast.LENGTH_SHORT).show()
-                    if(binding.ETNameFileImportSecretNotes.text.isNotEmpty())  ActivityCounter.activityStopped()
-                    settingActivity.loadFragment(SettingListFragment())
+                    catch (e: Exception)
+                    {
+                        binding.TVErrorImport.visibility = View.VISIBLE
+                    }
+
+
 
 
                 }

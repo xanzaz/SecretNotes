@@ -147,27 +147,26 @@ class State(
 
     fun encoding(key: List<List<UByte>>)
     {
+        //Начальный этап шифрования
         AddRoundKey(key)
-
+        //Основные раунды шифрования
         for (rnd in 1 until Nr){
             SubBytes()
             ShiftRows()
             MixColums()
             AddRoundKey(key,rnd)
         }
-
+        //Финальный этап шифрования
         SubBytes()
         ShiftRows()
         AddRoundKey(key,Nr)
-
-
-
     }
 
     fun decrypt(key: List<List<UByte>>)
     {
+        //Начальный этап шифрования
         AddRoundKey(key,Nr)
-
+        //Основные раунды шифрования
         var rnd:Int = Nr - 1
         while (rnd >=1)
         {
@@ -179,6 +178,7 @@ class State(
             rnd -=1
         }
 
+        //Финальный этап шифрования
         ShiftRows(inv = true)
         SubBytes(inv = true)
         AddRoundKey(key,rnd)
